@@ -1,6 +1,5 @@
 from Profile import *
 from Relation import *
-import requests
 from pyrfc3339 import generate
 from datetime import *
 import pytz
@@ -10,45 +9,23 @@ from Extraction import *
 
 class Weighted(Extraction):
     
-    def __init__(self,type, days, list, bearer_token, path, type_wheigt, delay = 0):
+    def __init__(self,type, days, list, oauth, path, type_wheigt, delay = 0):
         super().__init__(list, delay)
         self.type = type
         self.path = path
         self.start_date = (datetime.now(timezone.utc).astimezone() - timedelta(days=days)).isoformat()
         self.end_date = datetime.now(timezone.utc).astimezone().isoformat()
-        self.bearer_token = bearer_token
+        self.oauth = oauth
         self.days = days
         self.type_weigth = type_wheigt
 
-    def create_headers(self,bearer_token):
-        headers = {"Authorization": "Bearer {}".format(bearer_token)}
-        return headers
 
-    def connect_to_endpoint(self,url, headers, params):
-        response = requests.request("GET", url, headers=headers, params=params)
-        if response.status_code != 200:
-            while response.status_code != 200:
-                print("Esperando")
-                print(response.text)
-                t.sleep(60)
-                response = requests.request("GET", url, headers=headers, params=params)
-        return response.json()
-
-    def connect_to_endpoint2(self,url, headers):
-        response = requests.request("GET", url, headers=headers)
-        if response.status_code != 200:
-            while response.status_code != 200:
-                print("Esperando")
-                print(response.text)
-                t.sleep(60)
-                response = requests.request("GET", url, headers=headers)
-        return response.json()
 
     def get_list_members(self):
         search_url = "https://api.twitter.com/1.1/lists/members.json"
         query_params = {'list_id': self.list.get_list(), 'count':5000}
-        headers = self.create_headers(self.bearer_token)
-        json_response = self.connect_to_endpoint(search_url, headers, query_params)
+        headers = self.oauth.create_headers()
+        json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
         return json_response
 
     def get_id(self, mencionados):
@@ -61,8 +38,8 @@ class Weighted(Extraction):
             i += 1
         user_fields = "user.fields=id,created_at"
         url = "https://api.twitter.com/2/users/by?{}&{}".format(usernames, user_fields)
-        headers = self.create_headers(self.bearer_token)
-        json_response = self.connect_to_endpoint2(url, headers)
+        headers = self.oauth.create_headers()
+        json_response = self.oauth.connect_to_endpoint2(url, headers)
         return json_response
 
     def split_list(self, alist, wanted_parts=1):
@@ -80,8 +57,8 @@ class Weighted(Extraction):
         relations = []
 
         query_params = {'screen_name': user.screen_name, 'count': 5000}
-        headers = self.create_headers(self.bearer_token)
-        json_response = self.connect_to_endpoint(search_url, headers, query_params)
+        headers = self.oauth.create_headers()
+        json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
         if("ids" in json_response):
             for id in json_response["ids"]:
                 name = self.list.existing_profile_name(id)
@@ -94,8 +71,8 @@ class Weighted(Extraction):
                     relations.append(relation)
             while json_response["next_cursor"] != 0:
                 query_params['cursor'] = json_response["next_cursor"]
-                headers = self.create_headers(self.bearer_token)
-                json_response = self.connect_to_endpoint(search_url, headers, query_params)
+                headers = self.oauth.create_headers()
+                json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
                 for id in json_response["ids"]:
                     name = self.list.existing_profile_name(id)
                     if (name != ""):
@@ -112,8 +89,8 @@ class Weighted(Extraction):
         relations = []
 
         query_params = {'screen_name': user.screen_name, 'count': 5000}
-        headers = self.create_headers(self.bearer_token)
-        json_response = self.connect_to_endpoint(search_url, headers, query_params)
+        headers = self.oauth.create_headers()
+        json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
         if ("ids" in json_response):
             for id in json_response["ids"]:
                 name = self.list.existing_profile_name(id)
@@ -126,8 +103,8 @@ class Weighted(Extraction):
                     relations.append(relation)
             while json_response["next_cursor"] != 0:
                 query_params['cursor'] = json_response["next_cursor"]
-                headers = self.create_headers(self.bearer_token)
-                json_response = self.connect_to_endpoint(search_url, headers, query_params)
+                headers = self.oauth.create_headers()
+                json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
                 for id in json_response["ids"]:
                     name = self.list.existing_profile_name(id)
                     if (name != ""):
@@ -187,8 +164,8 @@ class Weighted(Extraction):
             #Mentions --------------------------------------------------------------------------------- A -> B
             aux = "@" + user.screen_name + " -is:reply -is:retweet"
             query_params = {'query': aux, 'tweet.fields': 'created_at,author_id,in_reply_to_user_id', 'expansions': 'author_id', 'max_results': 500, 'start_time': self.start_date}
-            headers = self.create_headers(self.bearer_token)
-            json_response = self.connect_to_endpoint(search_url, headers, query_params)
+            headers = self.oauth.create_headers()
+            json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
             if ("data" in json_response):
                 for mencionador in json_response["data"]:
                     r = self.get_mentions(mencionador["author_id"], json_response["includes"])
@@ -199,8 +176,8 @@ class Weighted(Extraction):
                 if ("next_token" in json_response["meta"]):
                     while json_response["meta"]["next_token"] != 0:
                         query_params['next_token'] = json_response["meta"]["next_token"]
-                        headers = self.create_headers(self.bearer_token)
-                        json_response = self.connect_to_endpoint(search_url, headers, query_params)
+                        headers = self.oauth.create_headers()
+                        json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
                         for mencionador in json_response["data"]:
                             r = self.get_mentions(mencionador["author_id"], json_response["includes"])
                             if (not self.list.existing_profile(r)):
@@ -214,8 +191,8 @@ class Weighted(Extraction):
             start = generate((datetime.now(timezone.utc).astimezone() - timedelta(days=self.days)).replace(tzinfo=pytz.utc))
             print(start)
             query_params = {"tweet.fields": "created_at,author_id,entities","expansions":"referenced_tweets.id.author_id,entities.mentions.username","max_results": 100, "start_time": start}
-            headers = self.create_headers(self.bearer_token)
-            json_response = self.connect_to_endpoint(search_url, headers, query_params)
+            headers = self.oauth.create_headers()
+            json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
             if ("data" in json_response):
                 for tweet in json_response["data"]:
                     if (not "referenced_tweets" in tweet):
@@ -228,8 +205,8 @@ class Weighted(Extraction):
                 if ("next_token" in json_response["meta"]):
                     while json_response["meta"]["next_token"] != 0:
                         query_params['pagination_token'] = json_response["meta"]["next_token"]
-                        headers = self.create_headers(self.bearer_token)
-                        json_response = self.connect_to_endpoint(search_url, headers, query_params)
+                        headers = self.oauth.create_headers()
+                        json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
                         for tweet in json_response["data"]:
                             if (not "referenced_tweets" in tweet):
                                 if ("entities" in tweet):
@@ -277,8 +254,8 @@ class Weighted(Extraction):
                 #Mentions --------------------------------------------------------------------------------- A -> B
                 aux = "@" + user.screen_name + " -is:reply -is:retweet"
                 query_params = {'query': aux, 'tweet.fields': 'created_at,author_id,in_reply_to_user_id','max_results': 500, 'start_time': self.start_date}
-                headers = self.create_headers(self.bearer_token)
-                json_response = self.connect_to_endpoint(search_url, headers, query_params)
+                headers = self.oauth.create_headers()
+                json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
                 if ("data" in json_response):
                     for mencionador in json_response["data"]:
                         print(mencionador)
@@ -287,8 +264,8 @@ class Weighted(Extraction):
                     if ("next_token" in json_response["meta"]):
                         while json_response["meta"]["next_token"] != 0:
                             query_params['next_token'] = json_response["meta"]["next_token"]
-                            headers = self.create_headers(self.bearer_token)
-                            json_response = self.connect_to_endpoint(search_url, headers, query_params)
+                            headers = self.oauth.create_headers()
+                            json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
                             for mencionador in json_response["data"]:
                                 relation = Relation(mencionador["author_id"], user.screen_name, 50, "ha mencionado a")
                                 relation.existing_and_upgrade_relation(relations)
@@ -299,8 +276,8 @@ class Weighted(Extraction):
                 #Replies --------------------------------------------------------------------------------- A -> B
                 aux = "to:" + user.screen_name + " is:reply -is:retweet"
                 query_params = {'query': aux, 'tweet.fields': 'created_at,author_id,in_reply_to_user_id,referenced_tweets','max_results': 500, 'start_time': self.start_date}
-                headers = self.create_headers(self.bearer_token)
-                json_response = self.connect_to_endpoint(search_url, headers, query_params)
+                headers = self.oauth.create_headers()
+                json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
                 if ("data" in json_response):
                     for respuesta in json_response["data"]:
                         if("referenced_tweets" in respuesta):
@@ -310,8 +287,8 @@ class Weighted(Extraction):
                     if ("next_token" in json_response["meta"]):
                         while json_response["meta"]["next_token"] != 0:
                             query_params['next_token'] = json_response["meta"]["next_token"]
-                            headers = self.create_headers(self.bearer_token)
-                            json_response = self.connect_to_endpoint(search_url, headers, query_params)
+                            headers = self.oauth.create_headers()
+                            json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
                             for respuesta in json_response["data"]:
                                 if ("referenced_tweets" in respuesta):
                                     if (respuesta["referenced_tweets"][0]["type"] == "replied_to"):
@@ -324,8 +301,8 @@ class Weighted(Extraction):
                 # Retweets --------------------------------------------------------------------------------- A -> B
                 aux = "retweets_of:" + user.screen_name
                 query_params = {'query': aux, 'tweet.fields': 'created_at,author_id,in_reply_to_user_id,referenced_tweets','max_results': 500, 'start_time': self.start_date}
-                headers = self.create_headers(self.bearer_token)
-                json_response = self.connect_to_endpoint(search_url, headers, query_params)
+                headers = self.oauth.create_headers()
+                json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
                 if ("data" in json_response):
                     for respuesta in json_response["data"]:
                         relation = Relation(respuesta["author_id"], user.screen_name, 50, "ha mencionado a")
@@ -333,8 +310,8 @@ class Weighted(Extraction):
                     if ("next_token" in json_response["meta"]):
                         while json_response["meta"]["next_token"] != 0:
                             query_params['next_token'] = json_response["meta"]["next_token"]
-                            headers = self.create_headers(self.bearer_token)
-                            json_response = self.connect_to_endpoint(search_url, headers, query_params)
+                            headers = self.oauth.create_headers()
+                            json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
                             for respuesta in json_response["data"]:
                                 relation = Relation(respuesta["author_id"], user.screen_name, 50, "ha mencionado a")
                                 relation.existing_and_upgrade_relation(relations)
@@ -345,8 +322,8 @@ class Weighted(Extraction):
             start = generate((datetime.now(timezone.utc).astimezone() - timedelta(days=self.days)).replace(tzinfo=pytz.utc))
             print(start)
             query_params = {"tweet.fields": "created_at,author_id,entities","expansions":"referenced_tweets.id.author_id,entities.mentions.username","max_results": 100, "start_time": start}
-            headers = self.create_headers(self.bearer_token)
-            json_response = self.connect_to_endpoint(search_url, headers, query_params)
+            headers = self.oauth.create_headers()
+            json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
             intercambiar = []
             if ("data" in json_response):
                 for tweet in json_response["data"]:
@@ -357,8 +334,8 @@ class Weighted(Extraction):
                 if ("next_token" in json_response["meta"]):
                     while json_response["meta"]["next_token"] != 0:
                         query_params['pagination_token'] = json_response["meta"]["next_token"]
-                        headers = self.create_headers(self.bearer_token)
-                        json_response = self.connect_to_endpoint(search_url, headers, query_params)
+                        headers = self.oauth.create_headers()
+                        json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
                         for tweet in json_response["data"]:
                             if ("entities" in tweet):
                                 if ("mentions" in tweet["entities"]):
@@ -414,8 +391,8 @@ class Weighted(Extraction):
             #Mentions --------------------------------------------------------------------------------- A -> B
             aux = "@" + user.screen_name + " -is:reply -is:retweet"
             query_params = {'query': aux, 'tweet.fields': 'created_at,author_id,in_reply_to_user_id', 'expansions': 'author_id', 'max_results': 500, 'start_time': self.start_date}
-            headers = self.create_headers(self.bearer_token)
-            json_response = self.connect_to_endpoint(search_url, headers, query_params)
+            headers = self.oauth.create_headers()
+            json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
             if ("data" in json_response):
                 for mencionador in json_response["data"]:
                     r = self.get_mentions(mencionador["author_id"], json_response["includes"])
@@ -428,8 +405,8 @@ class Weighted(Extraction):
                 if ("next_token" in json_response["meta"]):
                     while json_response["meta"]["next_token"] != 0:
                         query_params['next_token'] = json_response["meta"]["next_token"]
-                        headers = self.create_headers(self.bearer_token)
-                        json_response = self.connect_to_endpoint(search_url, headers, query_params)
+                        headers = self.oauth.create_headers()
+                        json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
                         for mencionador in json_response["data"]:
                             r = self.get_mentions(mencionador["author_id"], json_response["includes"])
                             if (not self.list.existing_profile(r)):
@@ -445,8 +422,8 @@ class Weighted(Extraction):
             start = generate((datetime.now(timezone.utc).astimezone() - timedelta(days=self.days)).replace(tzinfo=pytz.utc))
             print(start)
             query_params = {"tweet.fields": "created_at,author_id,entities","expansions":"referenced_tweets.id.author_id,entities.mentions.username","max_results": 100, "start_time": start}
-            headers = self.create_headers(self.bearer_token)
-            json_response = self.connect_to_endpoint(search_url, headers, query_params)
+            headers = self.oauth.create_headers()
+            json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
             if ("data" in json_response):
                 for tweet in json_response["data"]:
                     if (not "referenced_tweets" in tweet):
@@ -462,8 +439,8 @@ class Weighted(Extraction):
                 if ("next_token" in json_response["meta"]):
                     while json_response["meta"]["next_token"] != 0:
                         query_params['pagination_token'] = json_response["meta"]["next_token"]
-                        headers = self.create_headers(self.bearer_token)
-                        json_response = self.connect_to_endpoint(search_url, headers, query_params)
+                        headers = self.oauth.create_headers()
+                        json_response = self.oauth.connect_to_endpoint(search_url, headers, query_params)
                         for tweet in json_response["data"]:
                             if (not "referenced_tweets" in tweet):
                                 if ("entities" in tweet):

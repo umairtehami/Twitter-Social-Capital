@@ -12,6 +12,8 @@ from New_Project import *
 from PyQt5.QtCore import QThread, QObject, pyqtSignal
 from Algoritmo import *
 from List import *
+from OAuth1 import *
+from OAuth2 import *
 from Project import *
 from Unweighted import *
 from Weighted import *
@@ -36,8 +38,12 @@ class Worker(QObject):
 
         if(self.extraction.type == "followers"):
             self.extraction.execute_followers(self.com)
+        elif(self.extraction.type == "followers_weighted_oauth1"):
+            self.extraction.execute_followers_weighted(self.com)
         elif(self.extraction.type == "mentions"):
             self.extraction.execute_mentions(self.com)
+        elif (self.extraction.type == "mentions_weighted_oauth1"):
+            self.extraction.execute_mentions_weigthed(self.com)
         elif (self.extraction.type == "followers_simple"):
             self.extraction.execute_followers(self.com)
         elif (self.extraction.type == "mentions_simple"):
@@ -55,7 +61,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.project = None
-        self.credentials_path = None
+        self.oauth = None
         self.setupUi(self)
         self.Config()
 
@@ -74,6 +80,7 @@ class MainWindow(QtWidgets.QMainWindow):
             print(pro)
             self.progressBar.setValue(0)
             self.thread.exit()
+            print("Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -625,6 +632,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.path.setEnabled(False)
 
         self.extract.clicked.connect(lambda: self.extract_data())
+        self.extract.clicked.connect(lambda: self.extract.setEnabled(False))
 
         self.type_access.setEnabled(False)
         self.type_oauth.setEnabled(False)
@@ -637,25 +645,17 @@ class MainWindow(QtWidgets.QMainWindow):
         self.import_credentials.clicked.connect(lambda: self.import_cred())
         self.save_credentials.clicked.connect(lambda: self.save_edited_cred())
 
-        self.tweet_information.setEnabled(False)
-        self.tweets.setEnabled(False)
-        self.tweets.clicked.connect(lambda: self.disable_network())
-
-        self.followers.clicked.connect(lambda: self.disable_tweets())
-        self.followers.clicked.connect(lambda: self.mentions.setChecked(False))
-
-        self.mentions.clicked.connect(lambda: self.disable_tweets())
-        self.mentions.clicked.connect(lambda: self.followers.setChecked(False))
-
-        self.simple.clicked.connect(lambda: self.type_weight.setEnabled(False))
-
-        self.weigthed.clicked.connect(lambda: self.type_weight.setEnabled(True))
+        self.followers.clicked.connect(lambda: self.enable_followers())
+        self.mentions.clicked.connect(lambda: self.enable_mentions())
+        self.tweets.clicked.connect(lambda: self.enable_tweets())
 
         self.followers.setAutoExclusive(False)
         self.mentions.setAutoExclusive(False)
         self.type_weight.setEnabled(False)
-        self.weigthed.clicked.connect(lambda: self.type_weight.setEnabled(True))
+        self.tweet_information.setEnabled(False)
+
         self.simple.clicked.connect(lambda: self.type_weight.setEnabled(False))
+        self.weigthed.clicked.connect(lambda: self.check_weigth())
 
         self.extract.setStyleSheet("background-color : rgb(1, 130, 153); color : white; style : outset; border-radius : 6px")
         self.import_project.setStyleSheet("background-color : rgb(1, 130, 153); color : white; style : outset; border-radius : 6px")
@@ -679,6 +679,37 @@ class MainWindow(QtWidgets.QMainWindow):
         self.edit_list_id.setText("1371396789639774211")
         self.bearer_token.setText("AAAAAAAAAAAAAAAAAAAAAGGjNQEAAAAA%2FC6EztbH3ubeSHLtIuTe1lN%2Bypo%3Da8pm33BznTKNwPLJSLG5MDypgMTbW1TgNtz327bGCP7fiq98Bq")"""
 
+    def check_weigth(self):
+        if(self.followers.isChecked()):
+            self.type_weight.setEnabled(True)
+
+    def enable_followers(self):
+        self.type_relations.setEnabled(True)
+        self.weigthed.setEnabled(True)
+        self.type_weight.setEnabled(False)
+        self.simple.setChecked(True)
+        self.tweets.setChecked(False)
+        self.mentions.setChecked(False)
+        self.tweet_information.setEnabled(False)
+
+    def enable_mentions(self):
+        self.type_relations.setEnabled(True)
+        self.weigthed.setEnabled(True)
+        self.type_weight.setEnabled(False)
+        self.simple.setChecked(True)
+        self.tweets.setChecked(False)
+        self.followers.setChecked(False)
+        self.tweet_information.setEnabled(False)
+
+    def enable_tweets(self):
+        self.type_relations.setEnabled(False)
+        self.followers.setChecked(False)
+        self.simple.setChecked(True)
+        self.type_weight.setEnabled(False)
+        self.mentions.setChecked(False)
+        self.tweet_information.setEnabled(True)
+
+
     def detect_aouth(self, filename, message = True):
         with open(filename, 'r') as fp:
             data = json.load(fp)
@@ -687,10 +718,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.consumer_secret_key.setText(data["consumer_secret_key"])
                 self.access_token.setText(data["access_token"])
                 self.aceess_secret_token.setText(data["aceess_secret_token"])
+                self.oauth = OAuth1(data["name"], filename, self.consumer_key.text(), self.consumer_secret_key.text(),self.access_token.text(), self.aceess_secret_token.text())
                 self.bearer_token.clear()
                 self.disable_oauth2()
             elif (data["Type"] == "oauth2"):
                 self.bearer_token.setText(data["bearer_token"])
+                self.oauth = OAuth2(data["name"], filename, self.bearer_token.text())
                 self.consumer_key.clear()
                 self.consumer_secret_key.clear()
                 self.access_token.clear()
@@ -705,14 +738,10 @@ class MainWindow(QtWidgets.QMainWindow):
             msg.setWindowTitle("successfully")
             msg.exec_()
 
-
     def disable_oauth2(self):
         self.standard.setChecked(True)
         self.oauth1.setChecked(True)
-        self.simple.setChecked(True)
-        self.weigthed.setEnabled(False)
         self.spinBox.setEnabled(False)
-        self.type_weight.setEnabled(False)
         self.bearer_token.setEnabled(False)
         self.consumer_key.setEnabled(True)
         self.consumer_secret_key.setEnabled(True)
@@ -731,11 +760,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.type_relations.setEnabled(True)
         self.tweet_information.setEnabled(False)
 
-
     def disable_oauth1(self):
         self.academic.setChecked(True)
         self.oauth2.setChecked(True)
-        self.weigthed.setEnabled(True)
         self.spinBox.setEnabled(True)
         self.consumer_key.setEnabled(False)
         self.consumer_secret_key.setEnabled(False)
@@ -751,6 +778,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if("bearer_token" in data and not self.consumer_key.text() and not self.bearer_token.text()):
             if(data['bearer_token'] != ""):
                 self.bearer_token.setText(data['bearer_token'])
+                self.oauth = OAuth2(data["credentials_name"], data["credentials_path"], self.bearer_token.text())
                 self.disable_oauth1()
                 if(data["type_access"] == "premium"):
                     self.premium.setChecked(True)
@@ -761,6 +789,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.consumer_secret_key.setText(data['consumer_secret_key'])
                 self.access_token.setText(data['access_token'])
                 self.aceess_secret_token.setText(data['aceess_secret_token'])
+                self.oauth = OAuth1(data["credentials_name"], data["credentials_path"], self.consumer_key.text(), self.consumer_secret_key.text(),self.access_token.text(), self.aceess_secret_token.text())
                 self.disable_oauth2()
 
         if("network" in data):
@@ -784,8 +813,12 @@ class MainWindow(QtWidgets.QMainWindow):
             elif(data["network"] == "mentions"):
                 self.followers.setChecked(False)
                 self.mentions.setChecked(True)
-                self.simple.setChecked(True)
-                self.type_relations.setEnabled(False)
+                if (data["type_network"] == "simple"):
+                    self.simple.setChecked(True)
+                    self.type_weight.setEnabled(False)
+                else:
+                    self.weigthed.setChecked(True)
+                    self.type_weight.setEnabled(False)
             elif(data["network"] == "tweets"):
                 self.followers.setChecked(False)
                 self.mentions.setChecked(False)
@@ -824,7 +857,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.edit_list_id.setText(data["list"])
             self.credentials_path = data["credentials_path"]
 
-
     def new_proj(self):
         self.New_Proj = New_Project(self.communicate_proj)
         self.New_Proj.show()
@@ -859,7 +891,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.project = Project(data["name"], data["description"], data["path"])
                 self.set_data(data)
 
-
     def save_edited_proj(self, message = True):
         if(self.project != None):
             dictionary = {'name': self.name.text(),
@@ -872,8 +903,9 @@ class MainWindow(QtWidgets.QMainWindow):
                           'bearer_token': self.bearer_token.text(),
                           'list': self.edit_list_id.text()}
 
-            if(self.credentials_path != None):
-                dictionary['credentials_path'] = self.credentials_path
+            if(self.oauth != None):
+                dictionary['credentials_name'] = self.oauth.name
+                dictionary['credentials_path'] = self.oauth.path
 
             if(self.standard.isChecked()):
                 dictionary['type_access'] = "standard"
@@ -955,25 +987,19 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def import_new_cred(self):
         filename = self.New_Cred.ret_filename()
-        self.credentials_path = filename
-        print(filename)
         self.detect_aouth(filename, False)
 
     def import_cred(self):
         if(self.project != None):
             try:
                 fileName, _ = QtWidgets.QFileDialog.getOpenFileName(self, 'Single File', QtCore.QDir.rootPath() , '*.json')
-                print(fileName)
                 if(len(fileName) != 0):
-                    self.credentials_path = fileName
                     self.detect_aouth(fileName)
             except:
                 pass
 
     def save_edited_cred(self):
-        if(self.credentials_path != None):
-            pass
-
+        pass
 
     def extract_data(self):
 
@@ -981,8 +1007,27 @@ class MainWindow(QtWidgets.QMainWindow):
         self.save_edited_proj(False)
 
         if (self.standard.isChecked() and self.oauth1.isChecked() and self.followers.isChecked() and self.simple.isChecked()):
+            type_weight = []
+            extraction = Unweighted("followers",list,self.oauth, self.project.path, type_weight)
+            self.project.add_extraction(extraction)
 
-            extraction = Unweighted("followers",list,self.consumer_key.text(), self.consumer_secret_key.text(),self.access_token.text(), self.aceess_secret_token.text(), self.project.path)
+            self.thread = QThread()
+            self.worker = Worker(extraction, self.communicate)
+            self.worker.moveToThread(self.thread)
+            self.thread.started.connect(self.worker.run)
+            self.thread.start()
+            self.visual_panel.setText("STARTING EXTRACTION...")
+            print("waiting....")
+        elif (self.standard.isChecked() and self.oauth1.isChecked() and self.followers.isChecked() and self.weigthed.isChecked()):
+            type_weight = []
+            if (self.weight_mentions.isChecked()):
+                type_weight.append("M")
+            if (self.weight_replies.isChecked()):
+                type_weight.append("RP")
+            if (self.weight_retweets.isChecked()):
+                type_weight.append("RT")
+
+            extraction = Unweighted("followers_weighted_oauth1",list,self.oauth, self.project.path, type_weight)
             self.project.add_extraction(extraction)
 
             self.thread = QThread()
@@ -993,8 +1038,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.visual_panel.setText("STARTING EXTRACTION...")
             print("waiting....")
         elif(self.standard.isChecked() and self.oauth1.isChecked() and self.mentions.isChecked() and self.simple.isChecked()):
-
-            extraction = Unweighted("mentions", list, self.consumer_key.text(), self.consumer_secret_key.text(),self.access_token.text(), self.aceess_secret_token.text(), self.project.path)
+            type_weight = []
+            extraction = Unweighted("mentions", list, self.oauth, self.project.path, type_weight)
             self.project.add_extraction(extraction)
 
             self.thread = QThread()
@@ -1004,9 +1049,23 @@ class MainWindow(QtWidgets.QMainWindow):
             self.thread.start()
             self.visual_panel.setText("STARTING EXTRACTION...")
             print("waiting....")
+        elif (self.standard.isChecked() and self.oauth1.isChecked() and self.mentions.isChecked() and self.weigthed.isChecked()):
+            type_weight = []
+            extraction = Unweighted("mentions_weighted_oauth1", list, self.oauth, self.project.path, type_weight)
+            self.project.add_extraction(extraction)
+
+            self.thread = QThread()
+            self.worker = Worker(extraction, self.communicate)
+            self.worker.moveToThread(self.thread)
+            self.thread.started.connect(self.worker.run)
+            self.thread.start()
+            self.visual_panel.setText("STARTING EXTRACTION...")
+            print("waiting....")
+
+
         elif (self.academic.isChecked() and self.oauth2.isChecked() and self.followers.isChecked() and self.simple.isChecked()):
             type_weight = []
-            extraction = Weighted("followers_simple", self.spinBox.value(), list, self.bearer_token.text(), self.project.path, type_weight)
+            extraction = Weighted("followers_simple", self.spinBox.value(), list, self.oauth, self.project.path, type_weight)
             self.project.add_extraction(extraction)
 
             self.thread = QThread()
@@ -1018,7 +1077,7 @@ class MainWindow(QtWidgets.QMainWindow):
             print("waiting....")
         elif (self.academic.isChecked() and self.oauth2.isChecked() and self.mentions.isChecked() and self.simple.isChecked()):
             type_weight = []
-            extraction = Weighted("mentions_simple", self.spinBox.value(), list, self.bearer_token.text(), self.project.path, type_weight)
+            extraction = Weighted("mentions_simple", self.spinBox.value(), list, self.oauth, self.project.path, type_weight)
             self.project.add_extraction(extraction)
 
             self.thread = QThread()
@@ -1038,7 +1097,7 @@ class MainWindow(QtWidgets.QMainWindow):
             if (self.weight_retweets.isChecked()):
                 type_weight.append("RT")
 
-            extraction = Weighted("followers_weighted",self.spinBox.value(), list, self.bearer_token.text(), self.project.path, type_weight)
+            extraction = Weighted("followers_weighted",self.spinBox.value(), list, self.oauth, self.project.path, type_weight)
             self.project.add_extraction(extraction)
 
             self.thread = QThread()
@@ -1050,7 +1109,7 @@ class MainWindow(QtWidgets.QMainWindow):
             print("waiting....")
         elif (self.academic.isChecked() and self.oauth2.isChecked() and self.mentions.isChecked() and self.weigthed.isChecked()):
             type_weight = []
-            extraction = Weighted("mentions_weighted", self.spinBox.value(), list, self.bearer_token.text(), self.project.path, type_weight)
+            extraction = Weighted("mentions_weighted", self.spinBox.value(), list, self.oauth, self.project.path, type_weight)
             self.project.add_extraction(extraction)
 
             self.thread = QThread()
