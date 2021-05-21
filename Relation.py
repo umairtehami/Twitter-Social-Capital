@@ -20,14 +20,12 @@ class Relation:
     def existing_relation(self,relations):
         for rel in relations:
             if str(rel.source) == str(self.source) and str(rel.target) == str(self.target):
-                print("consulta -> ",rel.source,rel.target,self.source,self.target)
                 return True
         return False
 
     def existing_and_upgrade_relation(self,relations):
         for rel in relations:
             if str(rel.source) == str(self.source) and str(rel.target) == str(self.target):
-                print("suma -> ",rel.source,rel.target,self.source,self.target)
                 weight = rel.get_weight() + 50
                 rel.upgrade_weight(weight)
                 return True

@@ -17,14 +17,14 @@ class List:
     def get_profile(self,position):
         return self.profiles[position]
 
-    def existing_profile(self,profile):
+    def existing_profile(self,id):
         for prof in self.profiles:
-            if(prof.screen_name == profile):
+            if(str(prof.id) == str(id)):
                 return True
         return False
 
     def existing_profile_name(self, id):
         for prof in self.profiles:
-            if(prof.id == id):
+            if(str(prof.id) == str(id)):
                 return prof.screen_name
         return ""

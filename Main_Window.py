@@ -66,8 +66,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.Config()
 
     def updateProgress(self,pro):
-        if(pro != 9999):
-            self.progressBar.setValue(pro)
+
+        self.progressBar.setValue(pro)
         if(pro == 100):
             msg = QtWidgets.QMessageBox()
             msg.setIcon(QtWidgets.QMessageBox.Information)
@@ -81,6 +81,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.progressBar.setValue(0)
             self.thread.exit()
             print("Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+            self.extract.setEnabled(True)
 
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")

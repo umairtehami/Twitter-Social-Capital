@@ -31,15 +31,8 @@ class OAuth1(Authentication):
                 print("Esperando 1 min")
                 print(response.text)
                 t.sleep(60)
-                response = self.oauth.get(s, params=params)
-        return response.json()
-
-    def connect_to_endpoint2(self,url):
-        response = self.oauth.get(url)
-        if response.status_code != 200:
-            while response.status_code != 200:
-                print("Esperando")
-                print(response.text)
-                t.sleep(60)
-                response = self.oauth.get(url)
+                try:
+                    response = self.oauth.get(s, params=params)
+                except:
+                    print("Errorrrrrrr")
         return response.json()
