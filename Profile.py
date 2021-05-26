@@ -1,4 +1,3 @@
-
 class Profile:
 
     def __init__(self, screen_name = "", id = 0, followers = 0, following = 0, location = "", description = "", created_at = ""):

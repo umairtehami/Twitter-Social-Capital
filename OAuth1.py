@@ -24,7 +24,11 @@ class OAuth1(Authentication):
         )
 
     def connect_to_endpoint(self, s, params):
-        response = self.oauth.get(s, params=params)
+        response = {}
+        try:
+            response = self.oauth.get(s, params=params)
+        except:
+            return response
         if response.status_code != 200:
             print(response.status_code)
             while response.status_code != 200:
@@ -34,5 +38,5 @@ class OAuth1(Authentication):
                 try:
                     response = self.oauth.get(s, params=params)
                 except:
-                    print("Errorrrrrrr")
+                    return response
         return response.json()

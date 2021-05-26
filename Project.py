@@ -1,4 +1,3 @@
-
 class Project:
 
     def __init__(self,name, description, path):

@@ -13,7 +13,11 @@ class OAuth2(Authentication):
         self.headers = {"Authorization": "Bearer {}".format(self.bearer_token)}
 
     def connect_to_endpoint(self,url, params):
-        response = requests.request("GET", url, headers=self.headers, params=params)
+        response = {}
+        try:
+            response = requests.request("GET", url, headers=self.headers, params=params)
+        except:
+            return response
         if response.status_code != 200:
             while response.status_code != 200:
                 print("Esperando")
@@ -22,5 +26,5 @@ class OAuth2(Authentication):
                 try:
                     response = requests.request("GET", url, headers=self.headers, params=params)
                 except:
-                    return "erorrrrr"
+                    return response
         return response.json()

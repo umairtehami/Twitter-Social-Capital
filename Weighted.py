@@ -9,7 +9,7 @@ from Extraction import *
 
 class Weighted(Extraction):
     
-    def __init__(self,type, days, list, oauth, path, type_wheigt, delay = 0):
+    def __init__(self, type, days, list, oauth, path, type_wheigt, delay = 0):
         super().__init__(list, delay)
         self.type = type
         self.path = path
@@ -311,153 +311,113 @@ class Weighted(Extraction):
 
         relations = []
         member = 0
+        seconds = 1
         while member < len(self.list.profiles):
-            user = self.list.get_profile(member)
-            print(user.screen_name, self.start_date)
-            followers = self.get_followers(user)
-            friends = self.get_friends(user)
-            relations += (followers + friends)
-            print(len(friends), len(followers))
-            search_url = "https://api.twitter.com/2/tweets/search/all"
-            if("M" in self.type_weigth):
-                print("M")
-                #Mentions --------------------------------------------------------------------------------- A -> B
-                aux = "@" + user.screen_name + " -is:reply -is:retweet"
-                query_params = {'query': aux, 'tweet.fields': 'created_at,author_id,in_reply_to_user_id','max_results': 500, 'start_time': self.start_date}
-                json_response = self.oauth.connect_to_endpoint(search_url, query_params)
-                if ("data" in json_response):
-                    for mencionador in json_response["data"]:
-                        print(mencionador["text"])
-                        print("----------")
-                        if (not self.list.existing_profile(mencionador["author_id"])):
-                            relation = Relation(mencionador["author_id"], user.screen_name, 50, "ha mencionado a")
-                            relation.existing_and_upgrade_relation(relations)
-                    if ("next_token" in json_response["meta"]):
-                        while json_response["meta"]["next_token"] != 0:
-                            query_params['next_token'] = json_response["meta"]["next_token"]
-                            json_response = self.oauth.connect_to_endpoint(search_url, query_params)
-                            for mencionador in json_response["data"]:
-                                print(mencionador["text"])
-                                print("----------")
-                                if (not self.list.existing_profile(mencionador["author_id"])):
-                                    relation = Relation(mencionador["author_id"], user.screen_name, 50,"ha mencionado a")
-                                    relation.existing_and_upgrade_relation(relations)
-                            if (not "next_token" in json_response["meta"]):
-                                break
-            if ("RP" in self.type_weigth):
-                print("RP")
-                #Replies --------------------------------------------------------------------------------- A -> B
-                aux = "to:" + user.screen_name + " is:reply -is:retweet"
-                query_params = {'query': aux, 'tweet.fields': 'created_at,author_id,in_reply_to_user_id,referenced_tweets','max_results': 500, 'start_time': self.start_date}
-                json_response = self.oauth.connect_to_endpoint(search_url, query_params)
-                if ("data" in json_response):
-                    for respuesta in json_response["data"]:
-                        if ("referenced_tweets" in respuesta):
-                            if (respuesta["referenced_tweets"][0]["type"] == "replied_to"):
-                                print(respuesta["text"])
-                                print("----------")
-                                if (not self.list.existing_profile(respuesta["author_id"])):
-                                    relation = Relation(respuesta["author_id"], user.screen_name, 50, "ha mencionado a")
-                                    relation.existing_and_upgrade_relation(relations)
-                    if ("next_token" in json_response["meta"]):
-                        while json_response["meta"]["next_token"] != 0:
-                            query_params['next_token'] = json_response["meta"]["next_token"]
-                            json_response = self.oauth.connect_to_endpoint(search_url, query_params)
-                            for respuesta in json_response["data"]:
-                                if ("referenced_tweets" in respuesta):
-                                    if (respuesta["referenced_tweets"][0]["type"] == "replied_to"):
-                                        print(respuesta["text"])
-                                        print("----------")
-                                        if (not self.list.existing_profile(respuesta["author_id"])):
-                                            relation = Relation(respuesta["author_id"], user.screen_name, 50,"ha mencionado a")
-                                            relation.existing_and_upgrade_relation(relations)
-                            if (not "next_token" in json_response["meta"]):
-                                break
-            if ("RT" in self.type_weigth):
-                print("RT")
-                # Retweets --------------------------------------------------------------------------------- A -> B
-                aux = "retweets_of:" + user.screen_name
-                query_params = {'query': aux, 'tweet.fields': 'created_at,author_id,in_reply_to_user_id,referenced_tweets','max_results': 500, 'start_time': self.start_date}
-                json_response = self.oauth.connect_to_endpoint(search_url, query_params)
-                if ("data" in json_response):
-                    for respuesta in json_response["data"]:
-                        print(respuesta["text"])
-                        print("----------")
-                        if (not self.list.existing_profile(respuesta["author_id"])):
-                            relation = Relation(respuesta["author_id"], user.screen_name, 50, "ha mencionado a")
-                            relation.existing_and_upgrade_relation(relations)
-                    if ("next_token" in json_response["meta"]):
-                        while json_response["meta"]["next_token"] != 0:
-                            query_params['next_token'] = json_response["meta"]["next_token"]
-                            json_response = self.oauth.connect_to_endpoint(search_url, query_params)
-                            for respuesta in json_response["data"]:
-                                print(respuesta["text"])
-                                print("----------")
-                                if (not self.list.existing_profile(respuesta["author_id"])):
-                                    relation = Relation(respuesta["author_id"], user.screen_name, 50, "ha mencionado a")
-                                    relation.existing_and_upgrade_relation(relations)
-                            if (not "next_token" in json_response["meta"]):
-                                break
-            # User timeline - -------------------------------------------------------------------------------- B -> A
-            search_url = "https://api.twitter.com/2/users/{}/tweets".format(user.id)
-            start = generate((datetime.now(timezone.utc).astimezone() - timedelta(days=self.days)).replace(tzinfo=pytz.utc))
-            print(start)
-            query_params = {"tweet.fields": "created_at,author_id,entities","expansions":"referenced_tweets.id.author_id,entities.mentions.username","max_results": 100, "start_time": start}
-            json_response = self.oauth.connect_to_endpoint(search_url, query_params)
-            if ("data" in json_response):
-                for tweet in json_response["data"]:
-                    if (not "referenced_tweets" in tweet):
-                        if ("M" in self.type_weigth):
-                            print("ORIGINAL TWEET")
-                            if ("entities" in tweet):
-                                if ("mentions" in tweet["entities"]):
-                                    print(tweet["text"])
+            try:
+                user = self.list.get_profile(member)
+                print(user.screen_name, self.start_date)
+                followers = self.get_followers(user)
+                friends = self.get_friends(user)
+                relations += (followers + friends)
+                print(len(friends), len(followers))
+                search_url = "https://api.twitter.com/2/tweets/search/all"
+                if("M" in self.type_weigth):
+                    print("M")
+                    #Mentions --------------------------------------------------------------------------------- A -> B
+                    aux = "@" + user.screen_name + " -is:reply -is:retweet"
+                    query_params = {'query': aux, 'tweet.fields': 'created_at,author_id,in_reply_to_user_id','max_results': 500, 'start_time': self.start_date}
+                    json_response = self.oauth.connect_to_endpoint(search_url, query_params)
+                    if ("data" in json_response):
+                        for mencionador in json_response["data"]:
+                            print(mencionador["text"])
+                            print("----------")
+                            if (not self.list.existing_profile(mencionador["author_id"])):
+                                relation = Relation(mencionador["author_id"], user.screen_name, 50, "ha mencionado a")
+                                relation.existing_and_upgrade_relation(relations)
+                        if ("next_token" in json_response["meta"]):
+                            while json_response["meta"]["next_token"] != 0:
+                                query_params['next_token'] = json_response["meta"]["next_token"]
+                                json_response = self.oauth.connect_to_endpoint(search_url, query_params)
+                                for mencionador in json_response["data"]:
+                                    print(mencionador["text"])
                                     print("----------")
-                                    for mention in tweet["entities"]["mentions"]:
-                                        print(mention["username"])
-                                        id = self.id_mentioned(mention["username"], json_response["includes"]["users"])
-                                        name = self.list.existing_profile_name(id)
-                                        if (name != ""):
-                                            if (name != user.screen_name):
-                                                relation = Relation(user.screen_name, name, 50, "ha mencionado a")
+                                    if (not self.list.existing_profile(mencionador["author_id"])):
+                                        relation = Relation(mencionador["author_id"], user.screen_name, 50,"ha mencionado a")
+                                        relation.existing_and_upgrade_relation(relations)
+                                if (not "next_token" in json_response["meta"]):
+                                    break
+                if ("RP" in self.type_weigth):
+                    print("RP")
+                    #Replies --------------------------------------------------------------------------------- A -> B
+                    aux = "to:" + user.screen_name + " is:reply -is:retweet"
+                    query_params = {'query': aux, 'tweet.fields': 'created_at,author_id,in_reply_to_user_id,referenced_tweets','max_results': 500, 'start_time': self.start_date}
+                    json_response = self.oauth.connect_to_endpoint(search_url, query_params)
+                    if ("data" in json_response):
+                        for respuesta in json_response["data"]:
+                            if ("referenced_tweets" in respuesta):
+                                if (respuesta["referenced_tweets"][0]["type"] == "replied_to"):
+                                    print(respuesta["text"])
+                                    print("----------")
+                                    if (not self.list.existing_profile(respuesta["author_id"])):
+                                        relation = Relation(respuesta["author_id"], user.screen_name, 50, "ha mencionado a")
+                                        relation.existing_and_upgrade_relation(relations)
+                        if ("next_token" in json_response["meta"]):
+                            while json_response["meta"]["next_token"] != 0:
+                                query_params['next_token'] = json_response["meta"]["next_token"]
+                                json_response = self.oauth.connect_to_endpoint(search_url, query_params)
+                                for respuesta in json_response["data"]:
+                                    if ("referenced_tweets" in respuesta):
+                                        if (respuesta["referenced_tweets"][0]["type"] == "replied_to"):
+                                            print(respuesta["text"])
+                                            print("----------")
+                                            if (not self.list.existing_profile(respuesta["author_id"])):
+                                                relation = Relation(respuesta["author_id"], user.screen_name, 50,"ha mencionado a")
                                                 relation.existing_and_upgrade_relation(relations)
-                                        else:
-                                            relation = Relation(user.screen_name, id, 50, "ha mencionado a")
-                                            relation.existing_and_upgrade_relation(relations)
-                    else:
-                        if ("RP" in self.type_weigth):
-                            if ("replied_to" in tweet["referenced_tweets"][0]["type"]):
-                                print("REPLIED TO")
-                                print(tweet["text"])
-                                print("----------")
-                                a = self.referenced_author(tweet["referenced_tweets"][0]["id"],json_response["includes"]["tweets"])
-                                name = self.list.existing_profile_name(a)
-                                if (name != ""):
-                                    if (name != user.screen_name):
-                                        relation = Relation(user.screen_name, name, 50, "ha mencionado a")
+                                if (not "next_token" in json_response["meta"]):
+                                    break
+                if ("RT" in self.type_weigth):
+                    print("RT")
+                    # Retweets --------------------------------------------------------------------------------- A -> B
+                    aux = "retweets_of:" + user.screen_name
+                    query_params = {'query': aux, 'tweet.fields': 'created_at,author_id,in_reply_to_user_id,referenced_tweets','max_results': 500, 'start_time': self.start_date}
+                    json_response = self.oauth.connect_to_endpoint(search_url, query_params)
+                    if ("data" in json_response):
+                        for respuesta in json_response["data"]:
+                            print(respuesta["text"])
+                            print("----------")
+                            if (not self.list.existing_profile(respuesta["author_id"])):
+                                relation = Relation(respuesta["author_id"], user.screen_name, 50, "ha mencionado a")
+                                relation.existing_and_upgrade_relation(relations)
+                        if ("next_token" in json_response["meta"]):
+                            while json_response["meta"]["next_token"] != 0:
+                                query_params['next_token'] = json_response["meta"]["next_token"]
+                                json_response = self.oauth.connect_to_endpoint(search_url, query_params)
+                                for respuesta in json_response["data"]:
+                                    print(respuesta["text"])
+                                    print("----------")
+                                    if (not self.list.existing_profile(respuesta["author_id"])):
+                                        relation = Relation(respuesta["author_id"], user.screen_name, 50, "ha mencionado a")
                                         relation.existing_and_upgrade_relation(relations)
-                                else:
-                                    relation = Relation(user.screen_name, a, 50, "ha mencionado a")
-                                    relation.existing_and_upgrade_relation(relations)
-                        if ("RT" in self.type_weigth):
-                            if ("quoted" in tweet["referenced_tweets"][0]["type"]):
-                                print("RETWEET WITH TEXT")
-                                print(tweet["text"])
-                                print("----------")
-                                a = self.referenced_author(tweet["referenced_tweets"][0]["id"],json_response["includes"]["tweets"])
-                                name = self.list.existing_profile_name(a)
-                                if (name != ""):
-                                    if (name != user.screen_name):
-                                        relation = Relation(user.screen_name, name, 50, "ha mencionado a")
-                                        relation.existing_and_upgrade_relation(relations)
-                                else:
-                                    relation = Relation(user.screen_name, a, 50, "ha mencionado a")
-                                    relation.existing_and_upgrade_relation(relations)
+                                if (not "next_token" in json_response["meta"]):
+                                    break
+                # User timeline - -------------------------------------------------------------------------------- B -> A
+                search_url = "https://api.twitter.com/2/users/{}/tweets".format(user.id)
+                start = generate((datetime.now(timezone.utc).astimezone() - timedelta(days=self.days)).replace(tzinfo=pytz.utc))
+                print(start)
+                query_params = {"tweet.fields": "created_at,author_id,entities","expansions":"referenced_tweets.id.author_id,entities.mentions.username","max_results": 100, "start_time": start}
+                json_response = self.oauth.connect_to_endpoint(search_url, query_params)
+                if ("data" in json_response):
+                    for tweet in json_response["data"]:
+                        if (not "referenced_tweets" in tweet):
+                            if ("M" in self.type_weigth):
+                                print("ORIGINAL TWEET")
                                 if ("entities" in tweet):
                                     if ("mentions" in tweet["entities"]):
+                                        print(tweet["text"])
+                                        print("----------")
                                         for mention in tweet["entities"]["mentions"]:
                                             print(mention["username"])
-                                            id = self.id_mentioned(mention["username"],json_response["includes"]["users"])
+                                            id = self.id_mentioned(mention["username"], json_response["includes"]["users"])
                                             name = self.list.existing_profile_name(id)
                                             if (name != ""):
                                                 if (name != user.screen_name):
@@ -466,73 +426,73 @@ class Weighted(Extraction):
                                             else:
                                                 relation = Relation(user.screen_name, id, 50, "ha mencionado a")
                                                 relation.existing_and_upgrade_relation(relations)
-                            if ("retweeted" in tweet["referenced_tweets"][0]["type"]):
-                                print("RETWEET")
-                                print(tweet["text"])
-                                print("----------")
-                                a = self.referenced_author(tweet["referenced_tweets"][0]["id"],json_response["includes"]["tweets"])
-                                name = self.list.existing_profile_name(a)
-                                if (name != ""):
-                                    if (name != user.screen_name):
-                                        relation = Relation(user.screen_name, name, 50, "ha mencionado a")
+                        else:
+                            if ("RP" in self.type_weigth):
+                                if ("replied_to" in tweet["referenced_tweets"][0]["type"]):
+                                    print("REPLIED TO")
+                                    print(tweet["text"])
+                                    print("----------")
+                                    a = self.referenced_author(tweet["referenced_tweets"][0]["id"],json_response["includes"]["tweets"])
+                                    name = self.list.existing_profile_name(a)
+                                    if (name != ""):
+                                        if (name != user.screen_name):
+                                            relation = Relation(user.screen_name, name, 50, "ha mencionado a")
+                                            relation.existing_and_upgrade_relation(relations)
+                                    else:
+                                        relation = Relation(user.screen_name, a, 50, "ha mencionado a")
                                         relation.existing_and_upgrade_relation(relations)
-                                else:
-                                    relation = Relation(user.screen_name, a, 50, "ha mencionado a")
-                                    relation.existing_and_upgrade_relation(relations)
-                if ("next_token" in json_response["meta"]):
-                    while json_response["meta"]["next_token"] != 0:
-                        query_params['pagination_token'] = json_response["meta"]["next_token"]
-                        json_response = self.oauth.connect_to_endpoint(search_url, query_params)
-                        for tweet in json_response["data"]:
-                            if (not "referenced_tweets" in tweet):
-                                if ("M" in self.type_weigth):
-                                    print("ORIGINAL TWEET")
+                            if ("RT" in self.type_weigth):
+                                if ("quoted" in tweet["referenced_tweets"][0]["type"]):
+                                    print("RETWEET WITH TEXT")
+                                    print(tweet["text"])
+                                    print("----------")
+                                    a = self.referenced_author(tweet["referenced_tweets"][0]["id"],json_response["includes"]["tweets"])
+                                    name = self.list.existing_profile_name(a)
+                                    if (name != ""):
+                                        if (name != user.screen_name):
+                                            relation = Relation(user.screen_name, name, 50, "ha mencionado a")
+                                            relation.existing_and_upgrade_relation(relations)
+                                    else:
+                                        relation = Relation(user.screen_name, a, 50, "ha mencionado a")
+                                        relation.existing_and_upgrade_relation(relations)
                                     if ("entities" in tweet):
                                         if ("mentions" in tweet["entities"]):
-                                            print(tweet["text"])
-                                            print("----------")
                                             for mention in tweet["entities"]["mentions"]:
                                                 print(mention["username"])
                                                 id = self.id_mentioned(mention["username"],json_response["includes"]["users"])
                                                 name = self.list.existing_profile_name(id)
                                                 if (name != ""):
                                                     if (name != user.screen_name):
-                                                        relation = Relation(user.screen_name, name, 50,"ha mencionado a")
+                                                        relation = Relation(user.screen_name, name, 50, "ha mencionado a")
                                                         relation.existing_and_upgrade_relation(relations)
                                                 else:
                                                     relation = Relation(user.screen_name, id, 50, "ha mencionado a")
                                                     relation.existing_and_upgrade_relation(relations)
-                            else:
-                                if ("RP" in self.type_weigth):
-                                    if ("replied_to" in tweet["referenced_tweets"][0]["type"]):
-                                        print("REPLIED TO")
-                                        print(tweet["text"])
-                                        print("----------")
-                                        a = self.referenced_author(tweet["referenced_tweets"][0]["id"],json_response["includes"]["tweets"])
-                                        name = self.list.existing_profile_name(a)
-                                        if (name != ""):
-                                            if (name != user.screen_name):
-                                                relation = Relation(user.screen_name, name, 50, "ha mencionado a")
-                                                relation.existing_and_upgrade_relation(relations)
-                                        else:
-                                            relation = Relation(user.screen_name, a, 50, "ha mencionado a")
+                                if ("retweeted" in tweet["referenced_tweets"][0]["type"]):
+                                    print("RETWEET")
+                                    print(tweet["text"])
+                                    print("----------")
+                                    a = self.referenced_author(tweet["referenced_tweets"][0]["id"],json_response["includes"]["tweets"])
+                                    name = self.list.existing_profile_name(a)
+                                    if (name != ""):
+                                        if (name != user.screen_name):
+                                            relation = Relation(user.screen_name, name, 50, "ha mencionado a")
                                             relation.existing_and_upgrade_relation(relations)
-                                if ("RT" in self.type_weigth):
-                                    if ("quoted" in tweet["referenced_tweets"][0]["type"]):
-                                        print("RETWEET WITH TEXT")
-                                        print(tweet["text"])
-                                        print("----------")
-                                        a = self.referenced_author(tweet["referenced_tweets"][0]["id"],json_response["includes"]["tweets"])
-                                        name = self.list.existing_profile_name(a)
-                                        if (name != ""):
-                                            if (name != user.screen_name):
-                                                relation = Relation(user.screen_name, name, 50, "ha mencionado a")
-                                                relation.existing_and_upgrade_relation(relations)
-                                        else:
-                                            relation = Relation(user.screen_name, a, 50, "ha mencionado a")
-                                            relation.existing_and_upgrade_relation(relations)
+                                    else:
+                                        relation = Relation(user.screen_name, a, 50, "ha mencionado a")
+                                        relation.existing_and_upgrade_relation(relations)
+                    if ("next_token" in json_response["meta"]):
+                        while json_response["meta"]["next_token"] != 0:
+                            query_params['pagination_token'] = json_response["meta"]["next_token"]
+                            json_response = self.oauth.connect_to_endpoint(search_url, query_params)
+                            for tweet in json_response["data"]:
+                                if (not "referenced_tweets" in tweet):
+                                    if ("M" in self.type_weigth):
+                                        print("ORIGINAL TWEET")
                                         if ("entities" in tweet):
                                             if ("mentions" in tweet["entities"]):
+                                                print(tweet["text"])
+                                                print("----------")
                                                 for mention in tweet["entities"]["mentions"]:
                                                     print(mention["username"])
                                                     id = self.id_mentioned(mention["username"],json_response["includes"]["users"])
@@ -544,25 +504,71 @@ class Weighted(Extraction):
                                                     else:
                                                         relation = Relation(user.screen_name, id, 50, "ha mencionado a")
                                                         relation.existing_and_upgrade_relation(relations)
-                                    if ("retweeted" in tweet["referenced_tweets"][0]["type"]):
-                                        print("RETWEET")
-                                        print(tweet["text"])
-                                        print("----------")
-                                        a = self.referenced_author(tweet["referenced_tweets"][0]["id"],json_response["includes"]["tweets"])
-                                        name = self.list.existing_profile_name(a)
-                                        if (name != ""):
-                                            if (name != user.screen_name):
-                                                relation = Relation(user.screen_name, name, 50, "ha mencionado a")
+                                else:
+                                    if ("RP" in self.type_weigth):
+                                        if ("replied_to" in tweet["referenced_tweets"][0]["type"]):
+                                            print("REPLIED TO")
+                                            print(tweet["text"])
+                                            print("----------")
+                                            a = self.referenced_author(tweet["referenced_tweets"][0]["id"],json_response["includes"]["tweets"])
+                                            name = self.list.existing_profile_name(a)
+                                            if (name != ""):
+                                                if (name != user.screen_name):
+                                                    relation = Relation(user.screen_name, name, 50, "ha mencionado a")
+                                                    relation.existing_and_upgrade_relation(relations)
+                                            else:
+                                                relation = Relation(user.screen_name, a, 50, "ha mencionado a")
                                                 relation.existing_and_upgrade_relation(relations)
-                                        else:
-                                            relation = Relation(user.screen_name, a, 50, "ha mencionado a")
-                                            relation.existing_and_upgrade_relation(relations)
-                        if (not "next_token" in json_response["meta"]):
-                            break
-            progresso = (member + 1) / len(self.list.profiles)
-            communication.sig.emit(progresso * 100)
-            member += 1
-            print("---------------------------------------------")
+                                    if ("RT" in self.type_weigth):
+                                        if ("quoted" in tweet["referenced_tweets"][0]["type"]):
+                                            print("RETWEET WITH TEXT")
+                                            print(tweet["text"])
+                                            print("----------")
+                                            a = self.referenced_author(tweet["referenced_tweets"][0]["id"],json_response["includes"]["tweets"])
+                                            name = self.list.existing_profile_name(a)
+                                            if (name != ""):
+                                                if (name != user.screen_name):
+                                                    relation = Relation(user.screen_name, name, 50, "ha mencionado a")
+                                                    relation.existing_and_upgrade_relation(relations)
+                                            else:
+                                                relation = Relation(user.screen_name, a, 50, "ha mencionado a")
+                                                relation.existing_and_upgrade_relation(relations)
+                                            if ("entities" in tweet):
+                                                if ("mentions" in tweet["entities"]):
+                                                    for mention in tweet["entities"]["mentions"]:
+                                                        print(mention["username"])
+                                                        id = self.id_mentioned(mention["username"],json_response["includes"]["users"])
+                                                        name = self.list.existing_profile_name(id)
+                                                        if (name != ""):
+                                                            if (name != user.screen_name):
+                                                                relation = Relation(user.screen_name, name, 50,"ha mencionado a")
+                                                                relation.existing_and_upgrade_relation(relations)
+                                                        else:
+                                                            relation = Relation(user.screen_name, id, 50, "ha mencionado a")
+                                                            relation.existing_and_upgrade_relation(relations)
+                                        if ("retweeted" in tweet["referenced_tweets"][0]["type"]):
+                                            print("RETWEET")
+                                            print(tweet["text"])
+                                            print("----------")
+                                            a = self.referenced_author(tweet["referenced_tweets"][0]["id"],json_response["includes"]["tweets"])
+                                            name = self.list.existing_profile_name(a)
+                                            if (name != ""):
+                                                if (name != user.screen_name):
+                                                    relation = Relation(user.screen_name, name, 50, "ha mencionado a")
+                                                    relation.existing_and_upgrade_relation(relations)
+                                            else:
+                                                relation = Relation(user.screen_name, a, 50, "ha mencionado a")
+                                                relation.existing_and_upgrade_relation(relations)
+                            if (not "next_token" in json_response["meta"]):
+                                break
+                progresso = (member + 1) / len(self.list.profiles)
+                communication.sig.emit(progresso * 100)
+                member += 1
+                print("---------------------------------------------")
+            except:
+                t.sleep(seconds)
+                seconds += seconds
+                print("ESPERANDOOOOOOOOOOOOOOO",seconds)
         print("---------------------------------------------------------------------------------------------------------------------")
         stra = ""
         if("M" in self.type_weigth):

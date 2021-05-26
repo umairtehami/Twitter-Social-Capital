@@ -1,4 +1,3 @@
-
 class Relation:
 
     def __init__(self, source, target, weight = 0, label = "", type = "Directed"):

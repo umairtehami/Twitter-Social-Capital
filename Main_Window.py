@@ -10,7 +10,6 @@
 from New_Credentials import *
 from New_Project import *
 from PyQt5.QtCore import QThread, QObject, pyqtSignal
-from Algoritmo import *
 from List import *
 from OAuth1 import *
 from OAuth2 import *
@@ -80,7 +79,6 @@ class MainWindow(QtWidgets.QMainWindow):
             print(pro)
             self.progressBar.setValue(0)
             self.thread.exit()
-            print("Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
             self.extract.setEnabled(True)
 
     def setupUi(self, MainWindow):
@@ -115,7 +113,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.verticalLayout_3.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.followers = QtWidgets.QRadioButton(self.verticalLayoutWidget)
-        self.followers.setChecked(True)
+        self.followers.setChecked(False)
+        self.followers.setAutoExclusive(False)
         self.followers.setObjectName("followers")
         self.verticalLayout_3.addWidget(self.followers)
         self.mentions = QtWidgets.QRadioButton(self.verticalLayoutWidget)
@@ -386,7 +385,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tweet_information.setFont(font)
         self.tweet_information.setObjectName("tweet_information")
         self.gridLayoutWidget = QtWidgets.QWidget(self.tweet_information)
-        self.gridLayoutWidget.setGeometry(QtCore.QRect(10, 20, 401, 151))
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(10, 20, 401, 152))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
@@ -409,9 +408,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkBox_2 = QtWidgets.QCheckBox(self.gridLayoutWidget)
         self.checkBox_2.setObjectName("checkBox_2")
         self.gridLayout.addWidget(self.checkBox_2, 2, 0, 1, 1)
-        self.checkBox_10 = QtWidgets.QCheckBox(self.gridLayoutWidget)
-        self.checkBox_10.setObjectName("checkBox_10")
-        self.gridLayout.addWidget(self.checkBox_10, 3, 1, 1, 1)
         self.checkBox_9 = QtWidgets.QCheckBox(self.gridLayoutWidget)
         self.checkBox_9.setObjectName("checkBox_9")
         self.gridLayout.addWidget(self.checkBox_9, 2, 1, 1, 1)
@@ -427,15 +423,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkBox_4 = QtWidgets.QCheckBox(self.gridLayoutWidget)
         self.checkBox_4.setObjectName("checkBox_4")
         self.gridLayout.addWidget(self.checkBox_4, 4, 0, 1, 1)
-        self.checkBox_6 = QtWidgets.QCheckBox(self.gridLayoutWidget)
-        self.checkBox_6.setObjectName("checkBox_6")
-        self.gridLayout.addWidget(self.checkBox_6, 6, 0, 1, 1)
-        self.checkBox_13 = QtWidgets.QCheckBox(self.gridLayoutWidget)
-        self.checkBox_13.setObjectName("checkBox_13")
-        self.gridLayout.addWidget(self.checkBox_13, 6, 1, 1, 1)
         self.checkBox_12 = QtWidgets.QCheckBox(self.gridLayoutWidget)
         self.checkBox_12.setObjectName("checkBox_12")
         self.gridLayout.addWidget(self.checkBox_12, 5, 1, 1, 1)
+        self.checkBox_6 = QtWidgets.QCheckBox(self.gridLayoutWidget)
+        self.checkBox_6.setObjectName("checkBox_6")
+        self.gridLayout.addWidget(self.checkBox_6, 3, 1, 1, 1)
         self.groupBox_2 = QtWidgets.QGroupBox(self.groupBox)
         self.groupBox_2.setGeometry(QtCore.QRect(10, 10, 421, 31))
         self.groupBox_2.setTitle("")
@@ -602,15 +595,13 @@ class MainWindow(QtWidgets.QMainWindow):
         self.checkBox_8.setText(_translate("MainWindow", "Sensitive"))
         self.checkBox.setText(_translate("MainWindow", "Author"))
         self.checkBox_2.setText(_translate("MainWindow", "Favorites"))
-        self.checkBox_10.setText(_translate("MainWindow", "Media"))
         self.checkBox_9.setText(_translate("MainWindow", "Hashtags"))
         self.checkBox_7.setText(_translate("MainWindow", "Text"))
         self.checkBox_3.setText(_translate("MainWindow", "Retweets"))
         self.checkBox_5.setText(_translate("MainWindow", "Users mentioned"))
         self.checkBox_4.setText(_translate("MainWindow", "Number of mentions"))
-        self.checkBox_6.setText(_translate("MainWindow", "Location"))
-        self.checkBox_13.setText(_translate("MainWindow", "Users mentioned"))
         self.checkBox_12.setText(_translate("MainWindow", "Tweet url"))
+        self.checkBox_6.setText(_translate("MainWindow", "Location"))
         self.tweets.setText(_translate("MainWindow", "Tweets"))
         self.project_managment.setTitle(_translate("MainWindow", "Project Managment"))
         self.label_7.setText(_translate("MainWindow", "Name:"))
@@ -709,7 +700,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.type_weight.setEnabled(False)
         self.mentions.setChecked(False)
         self.tweet_information.setEnabled(True)
-
 
     def detect_aouth(self, filename, message = True):
         with open(filename, 'r') as fp:
@@ -830,33 +820,83 @@ class MainWindow(QtWidgets.QMainWindow):
                 for information in data["tweets_information"]:
                     if (information == "author"):
                         self.checkBox.setChecked(True)
+
                     if (information == "date"):
                         self.checkBox_1.setChecked(True)
+
                     if (information == "favorites"):
                         self.checkBox_2.setChecked(True)
+
                     if (information == "retweets"):
                         self.checkBox_3.setChecked(True)
+
                     if (information == "number_mentions"):
                         self.checkBox_4.setChecked(True)
-                    if (information == "user_mentioned"):
+
+                    if (information == "users_mentioned"):
                         self.checkBox_5.setChecked(True)
+
                     if (information == "location"):
                         self.checkBox_6.setChecked(True)
+
                     if (information == "text"):
                         self.checkBox_7.setChecked(True)
+
                     if (information == "sensitive"):
                         self.checkBox_8.setChecked(True)
+
                     if (information == "hashtag"):
                         self.checkBox_9.setChecked(True)
-                    if (information == "media"):
-                        self.checkBox_10.setChecked(True)
+
                     if (information == "urls"):
                         self.checkBox_11.setChecked(True)
+
                     if (information == "tweet_url"):
                         self.checkBox_12.setChecked(True)
 
+
             self.edit_list_id.setText(data["list"])
             self.credentials_path = data["credentials_path"]
+
+    def tweet_attributes(self):
+        lista = []
+        if (self.checkBox.isChecked()):
+            lista.append("author")
+
+        if (self.checkBox_1.isChecked()):
+            lista.append("date")
+
+        if (self.checkBox_2.isChecked()):
+            lista.append("favorites")
+
+        if (self.checkBox_3.isChecked()):
+            lista.append("retweets")
+
+        if (self.checkBox_4.isChecked()):
+            lista.append("number_mentions")
+
+        if (self.checkBox_5.isChecked()):
+            lista.append("users_mentioned")
+
+        if (self.checkBox_6.isChecked()):
+            lista.append("location")
+
+        if (self.checkBox_7.isChecked()):
+            lista.append("text")
+
+        if (self.checkBox_8.isChecked()):
+            lista.append("sensitive")
+
+        if (self.checkBox_9.isChecked()):
+            lista.append("hashtag")
+
+        if (self.checkBox_11.isChecked()):
+            lista.append("urls")
+
+        if (self.checkBox_12.isChecked()):
+            lista.append("tweet_url")
+
+        return lista
 
     def new_proj(self):
         self.New_Proj = New_Project(self.communicate_proj)
@@ -921,34 +961,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 dictionary['network'] = "mentions"
             elif (self.tweets.isChecked()):
                 dictionary['network'] = "tweets"
-                lista = []
-                if (self.checkBox.isChecked()):
-                    lista.append("author")
-                if (self.checkBox_1.isChecked()):
-                    lista.append("date")
-                if (self.checkBox_2.isChecked()):
-                    lista.append("favorites")
-                if (self.checkBox_3.isChecked()):
-                    lista.append("retweets")
-                if (self.checkBox_4.isChecked()):
-                    lista.append("number_mentions")
-                if (self.checkBox_5.isChecked()):
-                    lista.append("user_mentioned")
-                if (self.checkBox_6.isChecked()):
-                    lista.append("location")
-                if (self.checkBox_7.isChecked()):
-                    lista.append("text")
-                if (self.checkBox_8.isChecked()):
-                    lista.append("sensitive")
-                if (self.checkBox_9.isChecked()):
-                    lista.append("hashtag")
-                if (self.checkBox_10.isChecked()):
-                    lista.append("media")
-                if (self.checkBox_11.isChecked()):
-                    lista.append("urls")
-                if (self.checkBox_12.isChecked()):
-                    lista.append("tweet_url")
-
+                lista = self.tweet_attributes()
                 dictionary['tweets_information'] = lista
 
 
@@ -1120,9 +1133,23 @@ class MainWindow(QtWidgets.QMainWindow):
             self.thread.start()
             self.visual_panel.setText("STARTING EXTRACTION...")
             print("waiting....")
+
+
         elif (self.academic.isChecked() and self.oauth2.isChecked() and self.tweets.isChecked()):
-            type_weight = []
-            extraction = Tweets("Tweets", self.spinBox.value(), list, self.bearer_token.text(), self.project.path, type_weight)
+            type_attributes = self.tweet_attributes()
+            extraction = Tweets("Tweets", self.spinBox.value(), list, self.oauth, self.project.path, type_attributes)
+            self.project.add_extraction(extraction)
+
+            self.thread = QThread()
+            self.worker = Worker(extraction, self.communicate)
+            self.worker.moveToThread(self.thread)
+            self.thread.started.connect(self.worker.run)
+            self.thread.start()
+            self.visual_panel.setText("STARTING EXTRACTION...")
+            print("waiting....")
+        elif (self.standard.isChecked() and self.oauth1.isChecked() and self.tweets.isChecked()):
+            type_attributes = self.tweet_attributes()
+            extraction = Tweets("Tweets", 7, list, self.oauth, self.project.path, type_attributes)
             self.project.add_extraction(extraction)
 
             self.thread = QThread()

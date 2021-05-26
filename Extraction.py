@@ -1,4 +1,3 @@
-
 class Extraction:
 
     def __init__(self, list, delay = 0):
