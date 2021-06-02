@@ -270,7 +270,6 @@ class New_Credentials(QtWidgets.QWidget):
                               'aceess_secret_token':self.aceess_secret_token.text()}
 
                 aux = self.path.text() + '/' + self.name.text()
-                self.complete_path = (aux + ".json")
                 try:
                     with open(aux+'.json', 'w') as fp:
                         json.dump(dictionary, fp)
@@ -305,7 +304,6 @@ class New_Credentials(QtWidgets.QWidget):
                               'bearer_token': self.bearer_token.text()}
 
                 aux = self.path.text() + '/' + self.name.text()
-                self.complete_path = (aux + ".json")
                 try:
                     with open(aux + '.json', 'w') as fp:
                         json.dump(dictionary, fp)

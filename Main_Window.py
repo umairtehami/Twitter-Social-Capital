@@ -18,6 +18,9 @@ from Unweighted import *
 from Weighted import *
 from Tweets import *
 import os
+import sys
+from io import StringIO
+
 
 class Communicate(QObject):
     sig = pyqtSignal(int)
@@ -25,7 +28,7 @@ class Communicate(QObject):
 class Worker(QObject):
     finished = pyqtSignal()
     intCount = pyqtSignal(int)
-    
+
     def __init__(self, extraction, communicate = Communicate()):
         super(Worker, self).__init__()
         self.extraction = extraction
@@ -33,19 +36,10 @@ class Worker(QObject):
 
     def run(self):
         """Long-running task."""
-        print("calculating.....")
 
         if(self.extraction.type == "followers"):
             self.extraction.execute_followers(self.com)
-        elif(self.extraction.type == "followers_weighted_oauth1"):
-            self.extraction.execute_followers_weighted(self.com)
-        elif(self.extraction.type == "mentions"):
-            self.extraction.execute_mentions(self.com)
-        elif (self.extraction.type == "mentions_weighted_oauth1"):
-            self.extraction.execute_mentions_weigthed(self.com)
-        elif (self.extraction.type == "followers_simple"):
-            self.extraction.execute_followers(self.com)
-        elif (self.extraction.type == "mentions_simple"):
+        elif (self.extraction.type == "mentions"):
             self.extraction.execute_mentions(self.com)
         elif(self.extraction.type == "followers_weighted"):
             self.extraction.execute_followers_weighted(self.com)
@@ -54,6 +48,31 @@ class Worker(QObject):
         elif (self.extraction.type == "Tweets"):
             self.extraction.execute_tweets(self.com)
 
+class OutLog:
+    def __init__(self, edit, out=None, color=None):
+        """(edit, out=None, color=None) -> can write stdout, stderr to a
+        QTextEdit.
+        edit = QTextEdit
+        out = alternate stream ( can be the original sys.stdout )
+        color = alternate color (i.e. color stderr a different color)
+        """
+        self.edit = edit
+        self.out = out
+        self.color = color
+
+    def write(self, m):
+        if self.color:
+            self.tc = self.edit.textColor()
+            self.edit.setTextColor(self.color)
+
+        self.edit.moveCursor(QtGui.QTextCursor.End)
+        self.edit.insertPlainText(m)
+
+        if self.color:
+            self.edit.setTextColor(self.tc)
+
+        if self.out:
+            self.out.write(m)
 
 class MainWindow(QtWidgets.QMainWindow):
 
@@ -63,6 +82,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.oauth = None
         self.setupUi(self)
         self.Config()
+        sys.stdout = OutLog(self.visual_panel, sys.stdout)
+
+    def updatePanel(self,str):
+        self.visual_panel.setText(str)
 
     def updateProgress(self,pro):
 
@@ -76,7 +99,6 @@ class MainWindow(QtWidgets.QMainWindow):
             msg.exec_()
 
         if(pro == 9999):
-            print(pro)
             self.progressBar.setValue(0)
             self.thread.exit()
             self.extract.setEnabled(True)
@@ -642,9 +664,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tweets.clicked.connect(lambda: self.enable_tweets())
 
         self.followers.setAutoExclusive(False)
+        self.followers.setChecked(True)
         self.mentions.setAutoExclusive(False)
         self.type_weight.setEnabled(False)
         self.tweet_information.setEnabled(False)
+        self.spinBox.setEnabled(False)
 
         self.simple.clicked.connect(lambda: self.type_weight.setEnabled(False))
         self.weigthed.clicked.connect(lambda: self.check_weigth())
@@ -775,7 +799,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.premium.setChecked(True)
                 elif(data["type_access"] == "academic"):
                     self.academic.setChecked(True)
-            else:
+            elif(data['consumer_key'] != ""):
                 self.consumer_key.setText(data['consumer_key'])
                 self.consumer_secret_key.setText(data['consumer_secret_key'])
                 self.access_token.setText(data['access_token'])
@@ -1013,149 +1037,117 @@ class MainWindow(QtWidgets.QMainWindow):
                 pass
 
     def save_edited_cred(self):
-        pass
+        if (self.oauth != None):
+            if(self.oauth.id == 1):
+                dictionary = {'Type': 'oauth1',
+                              'name': self.oauth.name,
+                              'path': self.oauth.path,
+                              'consumer_key': self.consumer_key.text(),
+                              'consumer_secret_key': self.consumer_secret_key.text(),
+                              'access_token': self.access_token.text(),
+                              'aceess_secret_token': self.aceess_secret_token.text()}
+
+                aux = OAuth1(self.oauth.name, self.oauth.path, self.consumer_key.text(),self.consumer_secret_key.text(), self.access_token.text(), self.aceess_secret_token.text())
+
+            else:
+                dictionary = {'Type': 'oauth2',
+                              'name': self.oauth.name,
+                              'path': self.oauth.path,
+                              'bearer_token': self.bearer_token.text()}
+
+                aux = OAuth2(self.oauth.name, self.oauth.path, self.bearer_token.text())
+
+            try:
+                with open(self.oauth.path, 'w') as fp:
+                    json.dump(dictionary, fp)
+
+                self.oauth = aux
+                msg = QtWidgets.QMessageBox()
+                msg.setIcon(QtWidgets.QMessageBox.Information)
+                msg.setText("Save Correct")
+                msg.setInformativeText('Credentials saved successfully')
+                msg.setWindowTitle("Saved")
+                msg.exec_()
+            except:
+                msg = QtWidgets.QMessageBox()
+                msg.setIcon(QtWidgets.QMessageBox.Warning)
+                msg.setText("Error")
+                msg.setInformativeText('Please try again')
+                msg.setWindowTitle("Error")
+                msg.exec_()
+
+
 
     def extract_data(self):
 
-        list = List(self.edit_list_id.text())
-        self.save_edited_proj(False)
+        if(self.project != None and self.oauth != None and self.edit_list_id.text()):
+            list = List(self.edit_list_id.text())
+            self.visual_panel.clear()
+            self.save_edited_proj(False)
+            if (self.followers.isChecked() and self.simple.isChecked()):
+                extraction = Unweighted("followers", list,self.oauth, self.project.path)
+                self.project.add_extraction(extraction)
 
-        if (self.standard.isChecked() and self.oauth1.isChecked() and self.followers.isChecked() and self.simple.isChecked()):
-            type_weight = []
-            extraction = Unweighted("followers",list,self.oauth, self.project.path, type_weight)
-            self.project.add_extraction(extraction)
+                self.thread = QThread()
+                self.worker = Worker(extraction, self.communicate)
+                self.worker.moveToThread(self.thread)
+                self.thread.started.connect(self.worker.run)
+                self.thread.start()
+                self.visual_panel.setText("STARTING EXTRACTION...")
+            elif(self.mentions.isChecked() and self.simple.isChecked()):
+                extraction = Unweighted("mentions", list, self.oauth, self.project.path)
+                self.project.add_extraction(extraction)
 
-            self.thread = QThread()
-            self.worker = Worker(extraction, self.communicate)
-            self.worker.moveToThread(self.thread)
-            self.thread.started.connect(self.worker.run)
-            self.thread.start()
-            self.visual_panel.setText("STARTING EXTRACTION...")
-            print("waiting....")
-        elif (self.standard.isChecked() and self.oauth1.isChecked() and self.followers.isChecked() and self.weigthed.isChecked()):
-            type_weight = []
-            if (self.weight_mentions.isChecked()):
-                type_weight.append("M")
-            if (self.weight_replies.isChecked()):
-                type_weight.append("RP")
-            if (self.weight_retweets.isChecked()):
-                type_weight.append("RT")
+                self.thread = QThread()
+                self.worker = Worker(extraction, self.communicate)
+                self.worker.moveToThread(self.thread)
+                self.thread.started.connect(self.worker.run)
+                self.thread.start()
+                self.visual_panel.setText("STARTING EXTRACTION...")
+            elif(self.followers.isChecked() and self.weigthed.isChecked()):
+                type_weight = []
+                if(self.weight_mentions.isChecked()):
+                    type_weight.append("M")
+                if(self.weight_replies.isChecked()):
+                    type_weight.append("RP")
+                if (self.weight_retweets.isChecked()):
+                    type_weight.append("RT")
 
-            extraction = Unweighted("followers_weighted_oauth1",list,self.oauth, self.project.path, type_weight)
-            self.project.add_extraction(extraction)
+                extraction = Weighted("followers_weighted",self.spinBox.value(), list, self.oauth, self.project.path, type_weight)
+                self.project.add_extraction(extraction)
 
-            self.thread = QThread()
-            self.worker = Worker(extraction, self.communicate)
-            self.worker.moveToThread(self.thread)
-            self.thread.started.connect(self.worker.run)
-            self.thread.start()
-            self.visual_panel.setText("STARTING EXTRACTION...")
-            print("waiting....")
-        elif(self.standard.isChecked() and self.oauth1.isChecked() and self.mentions.isChecked() and self.simple.isChecked()):
-            type_weight = []
-            extraction = Unweighted("mentions", list, self.oauth, self.project.path, type_weight)
-            self.project.add_extraction(extraction)
+                self.thread = QThread()
+                self.worker = Worker(extraction, self.communicate)
+                self.worker.moveToThread(self.thread)
+                self.thread.started.connect(self.worker.run)
+                self.thread.start()
+                self.visual_panel.setText("STARTING EXTRACTION...")
+            elif (self.mentions.isChecked() and self.weigthed.isChecked()):
+                type_weight = []
+                extraction = Weighted("mentions_weighted", self.spinBox.value(), list, self.oauth, self.project.path, type_weight)
+                self.project.add_extraction(extraction)
 
-            self.thread = QThread()
-            self.worker = Worker(extraction, self.communicate)
-            self.worker.moveToThread(self.thread)
-            self.thread.started.connect(self.worker.run)
-            self.thread.start()
-            self.visual_panel.setText("STARTING EXTRACTION...")
-            print("waiting....")
-        elif (self.standard.isChecked() and self.oauth1.isChecked() and self.mentions.isChecked() and self.weigthed.isChecked()):
-            type_weight = []
-            extraction = Unweighted("mentions_weighted_oauth1", list, self.oauth, self.project.path, type_weight)
-            self.project.add_extraction(extraction)
+                self.thread = QThread()
+                self.worker = Worker(extraction, self.communicate)
+                self.worker.moveToThread(self.thread)
+                self.thread.started.connect(self.worker.run)
+                self.thread.start()
+                self.visual_panel.setText("STARTING EXTRACTION...")
+            elif (self.tweets.isChecked()):
+                type_attributes = self.tweet_attributes()
+                extraction = Tweets("Tweets", self.spinBox.value(), list, self.oauth, self.project.path, type_attributes)
+                self.project.add_extraction(extraction)
 
-            self.thread = QThread()
-            self.worker = Worker(extraction, self.communicate)
-            self.worker.moveToThread(self.thread)
-            self.thread.started.connect(self.worker.run)
-            self.thread.start()
-            self.visual_panel.setText("STARTING EXTRACTION...")
-            print("waiting....")
-
-
-        elif (self.academic.isChecked() and self.oauth2.isChecked() and self.followers.isChecked() and self.simple.isChecked()):
-            type_weight = []
-            extraction = Weighted("followers_simple", self.spinBox.value(), list, self.oauth, self.project.path, type_weight)
-            self.project.add_extraction(extraction)
-
-            self.thread = QThread()
-            self.worker = Worker(extraction, self.communicate)
-            self.worker.moveToThread(self.thread)
-            self.thread.started.connect(self.worker.run)
-            self.thread.start()
-            self.visual_panel.setText("STARTING EXTRACTION...")
-            print("waiting....")
-        elif (self.academic.isChecked() and self.oauth2.isChecked() and self.mentions.isChecked() and self.simple.isChecked()):
-            type_weight = []
-            extraction = Weighted("mentions_simple", self.spinBox.value(), list, self.oauth, self.project.path, type_weight)
-            self.project.add_extraction(extraction)
-
-            self.thread = QThread()
-            self.worker = Worker(extraction, self.communicate)
-            self.worker.moveToThread(self.thread)
-            self.thread.started.connect(self.worker.run)
-            self.thread.start()
-            self.visual_panel.setText("STARTING EXTRACTION...")
-            print("waiting....")
-        elif(self.academic.isChecked() and self.oauth2.isChecked() and self.followers.isChecked() and self.weigthed.isChecked()):
-
-            type_weight = []
-            if(self.weight_mentions.isChecked()):
-                type_weight.append("M")
-            if(self.weight_replies.isChecked()):
-                type_weight.append("RP")
-            if (self.weight_retweets.isChecked()):
-                type_weight.append("RT")
-
-            extraction = Weighted("followers_weighted",self.spinBox.value(), list, self.oauth, self.project.path, type_weight)
-            self.project.add_extraction(extraction)
-
-            self.thread = QThread()
-            self.worker = Worker(extraction, self.communicate)
-            self.worker.moveToThread(self.thread)
-            self.thread.started.connect(self.worker.run)
-            self.thread.start()
-            self.visual_panel.setText("STARTING EXTRACTION...")
-            print("waiting....")
-        elif (self.academic.isChecked() and self.oauth2.isChecked() and self.mentions.isChecked() and self.weigthed.isChecked()):
-            type_weight = []
-            extraction = Weighted("mentions_weighted", self.spinBox.value(), list, self.oauth, self.project.path, type_weight)
-            self.project.add_extraction(extraction)
-
-            self.thread = QThread()
-            self.worker = Worker(extraction, self.communicate)
-            self.worker.moveToThread(self.thread)
-            self.thread.started.connect(self.worker.run)
-            self.thread.start()
-            self.visual_panel.setText("STARTING EXTRACTION...")
-            print("waiting....")
-
-
-        elif (self.academic.isChecked() and self.oauth2.isChecked() and self.tweets.isChecked()):
-            type_attributes = self.tweet_attributes()
-            extraction = Tweets("Tweets", self.spinBox.value(), list, self.oauth, self.project.path, type_attributes)
-            self.project.add_extraction(extraction)
-
-            self.thread = QThread()
-            self.worker = Worker(extraction, self.communicate)
-            self.worker.moveToThread(self.thread)
-            self.thread.started.connect(self.worker.run)
-            self.thread.start()
-            self.visual_panel.setText("STARTING EXTRACTION...")
-            print("waiting....")
-        elif (self.standard.isChecked() and self.oauth1.isChecked() and self.tweets.isChecked()):
-            type_attributes = self.tweet_attributes()
-            extraction = Tweets("Tweets", 7, list, self.oauth, self.project.path, type_attributes)
-            self.project.add_extraction(extraction)
-
-            self.thread = QThread()
-            self.worker = Worker(extraction, self.communicate)
-            self.worker.moveToThread(self.thread)
-            self.thread.started.connect(self.worker.run)
-            self.thread.start()
-            self.visual_panel.setText("STARTING EXTRACTION...")
-            print("waiting....")
+                self.thread = QThread()
+                self.worker = Worker(extraction, self.communicate)
+                self.worker.moveToThread(self.thread)
+                self.thread.started.connect(self.worker.run)
+                self.thread.start()
+                self.visual_panel.setText("STARTING EXTRACTION...")
+        else:
+            msg = QtWidgets.QMessageBox()
+            msg.setIcon(QtWidgets.QMessageBox.Warning)
+            msg.setText("Error")
+            msg.setInformativeText('Please introduce all the values')
+            msg.setWindowTitle("Error")
+            msg.exec_()

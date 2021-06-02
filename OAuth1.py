@@ -24,19 +24,19 @@ class OAuth1(Authentication):
         )
 
     def connect_to_endpoint(self, s, params):
-        response = {}
         try:
             response = self.oauth.get(s, params=params)
-        except:
-            return response
-        if response.status_code != 200:
-            print(response.status_code)
-            while response.status_code != 200:
-                print("Esperando 1 min")
+            if response.status_code != 200:
                 print(response.text)
-                t.sleep(60)
-                try:
-                    response = self.oauth.get(s, params=params)
-                except:
-                    return response
-        return response.json()
+                if(response.status_code == 401):
+                    print("Wrong credentials")
+                    exit()
+                else:
+                    print("Waiting 60s and restarting conection")
+                    t.sleep(60)
+                    return self.connect_to_endpoint(s,params)
+            else:
+                return response.json()
+        except:
+            t.sleep(60)
+            return self.connect_to_endpoint(s,params)
