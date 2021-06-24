@@ -4,6 +4,7 @@ from datetime import *
 import pytz
 import unicodedata
 import csv
+import json
 from Extraction import *
 
 class Tweets(Extraction):
@@ -40,6 +41,15 @@ class Tweets(Extraction):
         return [alist[i * length // wanted_parts: (i + 1) * length // wanted_parts]
                 for i in range(wanted_parts)]
 
+    def remove_points(self, s):
+        aux = ""
+        for letter in s:
+            if(letter == ":"):
+                aux += "_"
+            else:
+                aux += letter
+        return aux
+
     def execute_tweets(self, communication):
 
         response = self.get_list_members()
@@ -48,8 +58,8 @@ class Tweets(Extraction):
             self.list.add_profile(user)
 
         member = 0
-        name = self.path + "/" + "T (" + self.start_date[:10] + ")(" + self.end_date[:10] + ").csv"
-        print(name)
+        aux = self.remove_points(self.start_date[11:19])
+        name = self.path + "/" + "T (" + self.start_date[:10] + "-" + aux + ")(" + self.end_date[:10] + "-" + aux + ").csv"
         with open(name, "w", newline='') as csv_file:
             writer = csv.writer(csv_file, delimiter=';')
             writer.writerow(element for element in self.type_attributes)
@@ -59,14 +69,11 @@ class Tweets(Extraction):
                 id_tweets = []
                 aux = "from:" + user.screen_name + " -is:reply"
                 start = generate((datetime.now(timezone.utc).astimezone() - timedelta(days=self.days, hours=1)).replace(tzinfo=pytz.utc))
-                print(start)
                 query_params = {'query': aux, 'tweet.fields': 'created_at,author_id,entities','expansions': 'referenced_tweets.id.author_id,entities.mentions.username'}
                 if(hasattr(self.oauth,'get_tokens') and callable(self.oauth.get_tokens)):
-                    print("OAuth1")
                     search_url = "https://api.twitter.com/2/tweets/search/recent"
                     query_params["max_results"] = 100
                 else:
-                    print("OAuth2")
                     search_url = "https://api.twitter.com/2/tweets/search/all"
                     query_params["max_results"] = 500
                     query_params["start_time"] = start
@@ -75,19 +82,11 @@ class Tweets(Extraction):
                 if ("data" in json_response):
                     for tweet in json_response["data"]:
                         if (not "referenced_tweets" in tweet):
-                            print("ORIGINAL TWEET")
-                            print(tweet["text"])
                             id_tweets.append(tweet["id"])
                         else:
                             if ("quoted" in tweet["referenced_tweets"][0]["type"]):
-                                print("RETWEET WITH TEXT")
-                                print(tweet["text"])
-                                print("----------")
                                 id_tweets.append(tweet["id"])
                             if ("retweeted" in tweet["referenced_tweets"][0]["type"]):
-                                print("RETWEET")
-                                print(tweet["text"])
-                                print("----------")
                                 id_tweets.append(tweet["id"])
                     if ("next_token" in json_response["meta"]):
                         while json_response["meta"]["next_token"] != 0:
@@ -95,19 +94,11 @@ class Tweets(Extraction):
                             json_response = self.oauth.connect_to_endpoint(search_url, query_params)
                             for tweet in json_response["data"]:
                                 if (not "referenced_tweets" in tweet):
-                                    print("ORIGINAL TWEET")
-                                    print(tweet["text"])
                                     id_tweets.append(tweet["id"])
                                 else:
                                     if ("quoted" in tweet["referenced_tweets"][0]["type"]):
-                                        print("RETWEET WITH TEXT")
-                                        print(tweet["text"])
-                                        print("----------")
                                         id_tweets.append(tweet["id"])
                                     if ("retweeted" in tweet["referenced_tweets"][0]["type"]):
-                                        print("RETWEET")
-                                        print(tweet["text"])
-                                        print("----------")
                                         id_tweets.append(tweet["id"])
                             if (not "next_token" in json_response["meta"]):
                                 break
@@ -123,6 +114,14 @@ class Tweets(Extraction):
                                     row.append(full_tweet["user"]["screen_name"])
                                 elif (attribute == "date"):
                                     row.append(full_tweet["created_at"])
+                                elif(attribute == "user_description"):
+                                    normal = unicodedata.normalize('NFKD', full_tweet["user"]["description"]).encode('ASCII', 'ignore')
+                                    utf8string = normal.decode("utf-8")
+                                    row.append(utf8string)
+                                elif(attribute == "user_followers"):
+                                    row.append(full_tweet["user"]["followers_count"])
+                                elif (attribute == "user_followees"):
+                                    row.append(full_tweet["user"]["friends_count"])
                                 elif (attribute == "favorites"):
                                     row.append(full_tweet["favorite_count"])
                                 elif (attribute == "retweets"):

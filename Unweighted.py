@@ -4,6 +4,7 @@ from pyrfc3339 import generate, parse
 import pytz
 from datetime import *
 import csv
+import os
 from Extraction import *
 
 class Unweighted(Extraction):
@@ -91,6 +92,15 @@ class Unweighted(Extraction):
             return relations
         else:
             return "error"
+
+    def remove_points(self, s):
+        aux = ""
+        for letter in s:
+            if(letter == ":"):
+                aux += "_"
+            else:
+                aux += letter
+        return aux
 
     def execute_followers(self, communication):
 
@@ -264,9 +274,8 @@ class Unweighted(Extraction):
             communication.sig.emit(progresso * 100)
             member += 1
             print("---------------------------------------------")
-        start = generate((datetime.now(timezone.utc).astimezone() - timedelta(days=7)).replace(tzinfo=pytz.utc))
-        end = generate((datetime.now(timezone.utc).astimezone()))
-        name = self.path + "/" + "M WN (" + start[:10] + ")(" + end[:10] + ").csv"
+        aux = self.remove_points(self.start_date[11:19])
+        name = self.path + "/" + "M WN (" + self.start_date[:10] + "-" + aux + ")(" + self.end_date[:10] + "-" + aux + ").csv"
         with open(name, "w", newline='') as csv_file:
             writer = csv.writer(csv_file, delimiter=';')
             writer.writerow(["Source", "Target", "Weight", "Label", "Type"])

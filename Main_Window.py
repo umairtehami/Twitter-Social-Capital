@@ -36,7 +36,6 @@ class Worker(QObject):
 
     def run(self):
         """Long-running task."""
-
         if(self.extraction.type == "followers"):
             self.extraction.execute_followers(self.com)
         elif (self.extraction.type == "mentions"):
@@ -407,50 +406,56 @@ class MainWindow(QtWidgets.QMainWindow):
         self.tweet_information.setFont(font)
         self.tweet_information.setObjectName("tweet_information")
         self.gridLayoutWidget = QtWidgets.QWidget(self.tweet_information)
-        self.gridLayoutWidget.setGeometry(QtCore.QRect(10, 20, 401, 152))
+        self.gridLayoutWidget.setGeometry(QtCore.QRect(10, 20, 401, 151))
         self.gridLayoutWidget.setObjectName("gridLayoutWidget")
         self.gridLayout = QtWidgets.QGridLayout(self.gridLayoutWidget)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
-        self.checkBox_11 = QtWidgets.QCheckBox(self.gridLayoutWidget)
-        self.checkBox_11.setObjectName("checkBox_11")
-        self.gridLayout.addWidget(self.checkBox_11, 4, 1, 1, 1)
-        self.checkBox_1 = QtWidgets.QCheckBox(self.gridLayoutWidget)
-        self.checkBox_1.setEnabled(True)
-        self.checkBox_1.setObjectName("checkBox_1")
-        self.gridLayout.addWidget(self.checkBox_1, 1, 0, 1, 1)
-        self.checkBox_8 = QtWidgets.QCheckBox(self.gridLayoutWidget)
-        self.checkBox_8.setObjectName("checkBox_8")
-        self.gridLayout.addWidget(self.checkBox_8, 1, 1, 1, 1)
+        self.checkBox_2 = QtWidgets.QCheckBox(self.gridLayoutWidget)
+        self.checkBox_2.setObjectName("checkBox_2")
+        self.gridLayout.addWidget(self.checkBox_2, 2, 0, 1, 1)
         self.checkBox = QtWidgets.QCheckBox(self.gridLayoutWidget)
         self.checkBox.setEnabled(True)
         self.checkBox.setCheckable(True)
         self.checkBox.setObjectName("checkBox")
         self.gridLayout.addWidget(self.checkBox, 0, 0, 1, 1)
-        self.checkBox_2 = QtWidgets.QCheckBox(self.gridLayoutWidget)
-        self.checkBox_2.setObjectName("checkBox_2")
-        self.gridLayout.addWidget(self.checkBox_2, 2, 0, 1, 1)
-        self.checkBox_9 = QtWidgets.QCheckBox(self.gridLayoutWidget)
-        self.checkBox_9.setObjectName("checkBox_9")
-        self.gridLayout.addWidget(self.checkBox_9, 2, 1, 1, 1)
-        self.checkBox_7 = QtWidgets.QCheckBox(self.gridLayoutWidget)
-        self.checkBox_7.setObjectName("checkBox_7")
-        self.gridLayout.addWidget(self.checkBox_7, 0, 1, 1, 1)
-        self.checkBox_3 = QtWidgets.QCheckBox(self.gridLayoutWidget)
-        self.checkBox_3.setObjectName("checkBox_3")
-        self.gridLayout.addWidget(self.checkBox_3, 3, 0, 1, 1)
+        self.checkBox_1 = QtWidgets.QCheckBox(self.gridLayoutWidget)
+        self.checkBox_1.setEnabled(True)
+        self.checkBox_1.setObjectName("checkBox_1")
+        self.gridLayout.addWidget(self.checkBox_1, 1, 0, 1, 1)
         self.checkBox_5 = QtWidgets.QCheckBox(self.gridLayoutWidget)
         self.checkBox_5.setObjectName("checkBox_5")
         self.gridLayout.addWidget(self.checkBox_5, 5, 0, 1, 1)
         self.checkBox_4 = QtWidgets.QCheckBox(self.gridLayoutWidget)
         self.checkBox_4.setObjectName("checkBox_4")
         self.gridLayout.addWidget(self.checkBox_4, 4, 0, 1, 1)
+        self.checkBox_3 = QtWidgets.QCheckBox(self.gridLayoutWidget)
+        self.checkBox_3.setObjectName("checkBox_3")
+        self.gridLayout.addWidget(self.checkBox_3, 3, 0, 1, 1)
+        self.checkBox_7 = QtWidgets.QCheckBox(self.gridLayoutWidget)
+        self.checkBox_7.setObjectName("checkBox_7")
+        self.gridLayout.addWidget(self.checkBox_7, 6, 0, 1, 1)
         self.checkBox_12 = QtWidgets.QCheckBox(self.gridLayoutWidget)
         self.checkBox_12.setObjectName("checkBox_12")
-        self.gridLayout.addWidget(self.checkBox_12, 5, 1, 1, 1)
+        self.gridLayout.addWidget(self.checkBox_12, 4, 1, 1, 1)
         self.checkBox_6 = QtWidgets.QCheckBox(self.gridLayoutWidget)
         self.checkBox_6.setObjectName("checkBox_6")
-        self.gridLayout.addWidget(self.checkBox_6, 3, 1, 1, 1)
+        self.gridLayout.addWidget(self.checkBox_6, 2, 1, 1, 1)
+        self.checkBox_11 = QtWidgets.QCheckBox(self.gridLayoutWidget)
+        self.checkBox_11.setObjectName("checkBox_11")
+        self.gridLayout.addWidget(self.checkBox_11, 3, 1, 1, 1)
+        self.checkBox_9 = QtWidgets.QCheckBox(self.gridLayoutWidget)
+        self.checkBox_9.setObjectName("checkBox_9")
+        self.gridLayout.addWidget(self.checkBox_9, 1, 1, 1, 1)
+        self.checkBox_8 = QtWidgets.QCheckBox(self.gridLayoutWidget)
+        self.checkBox_8.setObjectName("checkBox_8")
+        self.gridLayout.addWidget(self.checkBox_8, 0, 1, 1, 1)
+        self.checkBox_10 = QtWidgets.QCheckBox(self.gridLayoutWidget)
+        self.checkBox_10.setObjectName("checkBox_10")
+        self.gridLayout.addWidget(self.checkBox_10, 5, 1, 1, 1)
+        self.checkBox_13 = QtWidgets.QCheckBox(self.gridLayoutWidget)
+        self.checkBox_13.setObjectName("checkBox_13")
+        self.gridLayout.addWidget(self.checkBox_13, 6, 1, 1, 1)
         self.groupBox_2 = QtWidgets.QGroupBox(self.groupBox)
         self.groupBox_2.setGeometry(QtCore.QRect(10, 10, 421, 31))
         self.groupBox_2.setTitle("")
@@ -586,7 +591,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.type_relations.setTitle(_translate("MainWindow", "Type of network"))
         self.simple.setText(_translate("MainWindow", "No Weighted"))
         self.weigthed.setText(_translate("MainWindow", "Weighted"))
-        self.type_weight.setTitle(_translate("MainWindow", "Type of weight"))
+        self.type_weight.setTitle(_translate("MainWindow", "Type of interaction"))
         self.weight_mentions.setText(_translate("MainWindow", "Mentions"))
         self.weight_retweets.setText(_translate("MainWindow", "Retweets"))
         self.weight_replies.setText(_translate("MainWindow", "Replies"))
@@ -612,18 +617,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.label_9.setText(_translate("MainWindow", "Days:"))
         self.network_configuration.setTitle(_translate("MainWindow", "Network configuration"))
         self.tweet_information.setTitle(_translate("MainWindow", "Tweet information"))
-        self.checkBox_11.setText(_translate("MainWindow", "Urls"))
-        self.checkBox_1.setText(_translate("MainWindow", "Date"))
-        self.checkBox_8.setText(_translate("MainWindow", "Sensitive"))
-        self.checkBox.setText(_translate("MainWindow", "Author"))
         self.checkBox_2.setText(_translate("MainWindow", "Favorites"))
-        self.checkBox_9.setText(_translate("MainWindow", "Hashtags"))
-        self.checkBox_7.setText(_translate("MainWindow", "Text"))
-        self.checkBox_3.setText(_translate("MainWindow", "Retweets"))
+        self.checkBox.setText(_translate("MainWindow", "Author"))
+        self.checkBox_1.setText(_translate("MainWindow", "Date"))
         self.checkBox_5.setText(_translate("MainWindow", "Users mentioned"))
         self.checkBox_4.setText(_translate("MainWindow", "Number of mentions"))
+        self.checkBox_3.setText(_translate("MainWindow", "Retweets"))
+        self.checkBox_7.setText(_translate("MainWindow", "Text"))
         self.checkBox_12.setText(_translate("MainWindow", "Tweet url"))
         self.checkBox_6.setText(_translate("MainWindow", "Location"))
+        self.checkBox_11.setText(_translate("MainWindow", "Urls"))
+        self.checkBox_9.setText(_translate("MainWindow", "Hashtags"))
+        self.checkBox_8.setText(_translate("MainWindow", "Sensitive"))
+        self.checkBox_10.setText(_translate("MainWindow", "User description"))
+        self.checkBox_13.setText(_translate("MainWindow", "User followers/followees"))
         self.tweets.setText(_translate("MainWindow", "Tweets"))
         self.project_managment.setTitle(_translate("MainWindow", "Project Managment"))
         self.label_7.setText(_translate("MainWindow", "Name:"))
@@ -646,7 +653,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.path.setEnabled(False)
 
         self.extract.clicked.connect(lambda: self.extract_data())
-        self.extract.clicked.connect(lambda: self.extract.setEnabled(False))
 
         self.type_access.setEnabled(False)
         self.type_oauth.setEnabled(False)
@@ -669,6 +675,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.type_weight.setEnabled(False)
         self.tweet_information.setEnabled(False)
         self.spinBox.setEnabled(False)
+        self.spinBox.setMaximum(1830)
 
         self.simple.clicked.connect(lambda: self.type_weight.setEnabled(False))
         self.weigthed.clicked.connect(lambda: self.check_weigth())
@@ -733,7 +740,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.consumer_secret_key.setText(data["consumer_secret_key"])
                 self.access_token.setText(data["access_token"])
                 self.aceess_secret_token.setText(data["aceess_secret_token"])
-                self.oauth = OAuth1(data["name"], filename, self.consumer_key.text(), self.consumer_secret_key.text(),self.access_token.text(), self.aceess_secret_token.text())
+                self.oauth = OAuth1(data["name"], filename, self.consumer_key.text(), self.consumer_secret_key.text(),self.access_token.text(), self.aceess_secret_token.text(), self.communicate)
                 self.bearer_token.clear()
                 self.disable_oauth2()
             elif (data["Type"] == "oauth2"):
@@ -804,7 +811,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.consumer_secret_key.setText(data['consumer_secret_key'])
                 self.access_token.setText(data['access_token'])
                 self.aceess_secret_token.setText(data['aceess_secret_token'])
-                self.oauth = OAuth1(data["credentials_name"], data["credentials_path"], self.consumer_key.text(), self.consumer_secret_key.text(),self.access_token.text(), self.aceess_secret_token.text())
+                self.oauth = OAuth1(data["credentials_name"], data["credentials_path"], self.consumer_key.text(), self.consumer_secret_key.text(),self.access_token.text(), self.aceess_secret_token.text(), self.communicate)
                 self.disable_oauth2()
 
         if("network" in data):
@@ -878,6 +885,12 @@ class MainWindow(QtWidgets.QMainWindow):
                     if (information == "tweet_url"):
                         self.checkBox_12.setChecked(True)
 
+                    if (information == "user_description"):
+                        self.checkBox_10.setChecked(True)
+
+                    if (information == "user_followers"):
+                        self.checkBox_13.setChecked(True)
+
 
             self.edit_list_id.setText(data["list"])
             self.credentials_path = data["credentials_path"]
@@ -889,6 +902,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if (self.checkBox_1.isChecked()):
             lista.append("date")
+
+        if (self.checkBox_10.isChecked()):
+            lista.append("user_description")
+
+        if (self.checkBox_13.isChecked()):
+            lista.append("user_followers")
+            lista.append("user_followees")
 
         if (self.checkBox_2.isChecked()):
             lista.append("favorites")
@@ -1047,7 +1067,7 @@ class MainWindow(QtWidgets.QMainWindow):
                               'access_token': self.access_token.text(),
                               'aceess_secret_token': self.aceess_secret_token.text()}
 
-                aux = OAuth1(self.oauth.name, self.oauth.path, self.consumer_key.text(),self.consumer_secret_key.text(), self.access_token.text(), self.aceess_secret_token.text())
+                aux = OAuth1(self.oauth.name, self.oauth.path, self.consumer_key.text(),self.consumer_secret_key.text(), self.access_token.text(), self.aceess_secret_token.text(), self.communicate)
 
             else:
                 dictionary = {'Type': 'oauth2',
@@ -1076,14 +1096,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 msg.setWindowTitle("Error")
                 msg.exec_()
 
-
-
     def extract_data(self):
 
-        if(self.project != None and self.oauth != None and self.edit_list_id.text()):
+        if(self.project != None and self.oauth != None and self.edit_list_id.text() and self.oauth.check_credentials()):
             list = List(self.edit_list_id.text())
             self.visual_panel.clear()
             self.save_edited_proj(False)
+            self.extract.clicked.connect(lambda: self.extract.setEnabled(False))
             if (self.followers.isChecked() and self.simple.isChecked()):
                 extraction = Unweighted("followers", list,self.oauth, self.project.path)
                 self.project.add_extraction(extraction)

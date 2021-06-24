@@ -3,7 +3,6 @@ from Relation import *
 from pyrfc3339 import generate
 from datetime import *
 import pytz
-import time as t
 import csv
 from Extraction import *
 
@@ -95,6 +94,15 @@ class Weighted(Extraction):
                         relation = Relation(user.screen_name, id, 50, "es seguidor de")
                         relations.append(relation)
         return relations
+
+    def remove_points(self, s):
+        aux = ""
+        for letter in s:
+            if(letter == ":"):
+                aux += "_"
+            else:
+                aux += letter
+        return aux
 
     def execute_followers_weighted(self, communication):
 
@@ -359,7 +367,10 @@ class Weighted(Extraction):
             stra += "RP,"
         if ("RT" in self.type_weigth):
             stra += "RT"
-        name = self.path + "/" + "F WY " + stra + " (" + self.start_date[:10] + ")(" + self.end_date[:10] + ").csv"
+
+        aux = self.remove_points(self.start_date[11:19])
+        print(aux)
+        name = self.path + "/" + "F WY " + stra + " (" + self.start_date[:10] + "-" + aux + ")(" + self.end_date[:10] + "-" + aux + ").csv"
         with open(name, "w", newline='') as csv_file:
             writer = csv.writer(csv_file, delimiter=';')
             writer.writerow(["Source", "Target", "Weight", "Label", "Type", "Start date", "End date"])
@@ -541,7 +552,10 @@ class Weighted(Extraction):
             communication.sig.emit(progresso * 100)
             member += 1
             print("---------------------------------------------")
-        name = self.path + "/" + "M WY (" + self.start_date[:10] + ")(" + self.end_date[:10] + ").csv"
+
+        aux = self.remove_points(self.start_date[11:19])
+        print(aux)
+        name = self.path + "/" + "M WY (" + self.start_date[:10] + "-" + aux + ")(" + self.end_date[:10] + "-" + aux + ").csv"
         with open(name, "w", newline='') as csv_file:
             writer = csv.writer(csv_file, delimiter=';')
             writer.writerow(["Source", "Target", "Weight", "Label", "Type", "Start date", "End date"])
