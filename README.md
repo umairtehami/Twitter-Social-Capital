@@ -1,4 +1,4 @@
-##Resumen
+## Resumen
 En este trabajo se explora el concepto de capital social, su relevancia para las diferentes organizaciones y como se relaciona con la teoría de redes y las redes sociales online como (Twitter, Instagram, Facebook, etc..), centrándose en Twitter como red social principal. Se definen también los procedimientos para la extracción de datos de Twitter, así como una serie de comparativas de los diferentes tipos de accesos a la API de Twitter, las diferentes librerías que lo permiten y las herramientas de análisis de redes. Se detallan también los indicadores más adecuados para el cálculo del capital social y se lleva a cabo la implementación de un software que integra todos estos elementos.
 
 
