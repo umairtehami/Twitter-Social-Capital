@@ -17,6 +17,8 @@ Project is created with:
 
 ## Video
 
+## Extractions Supported
+
 ## Setup
 To run this project, install it locally using npm:
 
