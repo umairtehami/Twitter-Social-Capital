@@ -9,6 +9,12 @@ En aquest treball s’explora el concepte de capital social, la seva rellevànci
 ## Abstract
 This paper explores the concept of social capital, its relevance for different organizations and how it relates to network theory and online social networks (Twitter, Instagram, Facebook, etc.), focusing on Twitter as the main social network. The procedures for extracting data from Twitter are also defined, as well as a series of comparisons of the different types of Twitter API accesses, the different libraries that allow it and the network analysis tools. The most appropriate indicators for the calculation of social capital are also detailed and the implementation of a software that integrates all these elements is carried out.
 
+## Technologies
+Project is created with:
+* Software version: 7.0
+* Programming Lenguaje: Python
+* Graphic Library: PyQT5
+
 ## Video
 
 ## Setup
