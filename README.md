@@ -23,8 +23,8 @@ Project is created with:
 To run this project, install it locally using npm:
 
 ## Authors
-Umair Tehami - Developer
-Antonio Cañabate Carmona - Mentor
+- Umair Tehami - Developer
+- Antonio Cañabate Carmona - Mentor
 
 ## Contact Information
 
