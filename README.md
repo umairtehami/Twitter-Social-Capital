@@ -19,3 +19,10 @@ Project is created with:
 
 ## Setup
 To run this project, install it locally using npm:
+
+## Authors
+Umair Tehami - Developer
+Antonio Cañabate Carmona - Mentor
+
+## Contact Information
+
