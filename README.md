@@ -22,7 +22,7 @@ Project is created with:
 ## Extractions Supported
 
 ## Setup
-To run this project, install it locally using npm:
+To run this project, install it locally using the auto contened installer.
 
 ## Authors
 - Umair Tehami - Developer
