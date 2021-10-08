@@ -11,6 +11,8 @@ This paper explores the concept of social capital, its relevance for different o
 
 # Social Capital
 
+# Research Gate Article
+
 ## Technologies
 Project is created with:
 * Software version: 7.0
@@ -21,12 +23,16 @@ Project is created with:
 
 ## Extractions Supported
 
+![alt text](https://www.google.es/search?q=followers&source=lnms&tbm=isch&sa=X&ved=2ahUKEwiGnc2ijrrzAhXEz4UKHatzBAUQ_AUoAXoECAEQAw&biw=1920&bih=969&dpr=1#imgrc=9M01ETxElatpMM)
+
 ## Setup
 To run this project, install it locally using the auto contened installer.
 
 ## Authors
 - Umair Tehami - Developer
-- Antonio Cañabate Carmona - Mentor
+- Antonio Cañabate Carmona - Researcher
+- Natalia Sanchez - Researcher
+- Ferran Sabate - Researcher
 
 ## Contact Information
 
