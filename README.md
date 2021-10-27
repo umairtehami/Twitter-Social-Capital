@@ -49,7 +49,7 @@ Project is created with:
 
 ## Setup
 
-To run this project, install it locally using the auto contened installer. It can be find in release section.
+To run this project, install it locally using the auto contened installer. [It can be find in release section](https://github.com/umairtehami/Twitter-Social-Capital/releases/tag/v1.0)
 
 ## Authors
 
