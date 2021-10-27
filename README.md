@@ -53,17 +53,17 @@ To run this project, install it locally using the auto contened installer.
 
 ## Authors
 
-•	Umair Tehami – Developer (linkedin)
-•	Antonio Cañabate Carmona - Senior Researcher
-•	Natalia Sánchez-Arrieta - Researcher
-•	Ferran Sabate Garriga - Researcher
+- Umair Tehami – Developer (linkedin)
+- Antonio Cañabate Carmona - Senior Researcher
+- Natalia Sánchez-Arrieta - Researcher
+- Ferran Sabate Garriga - Researcher
 
 ## References
 
-Companies social capital en Twitter. Bachelor’s degree final project
-Sánchez-Arrieta, N., González, R. A., Cañabate, A., & Sabate, F. (2021). Social Capital on Social Networking Sites: A Social Network Perspective. Sustainability, 13(9), 5147. 
-SANCHEZ-ARRIETA, N., CAÑABATE, A., & SABATE, F. The Impact of Corporate Social Responsibility Communications on Firms' Social Capital Development. A Literature Review. STRATEGICA, 521. 
-Social Capital definition
+- Companies social capital en Twitter. Bachelor’s degree final project
+- Sánchez-Arrieta, N., González, R. A., Cañabate, A., & Sabate, F. (2021). Social Capital on Social Networking Sites: A Social Network Perspective. Sustainability, 13(9), 5147. 
+- SANCHEZ-ARRIETA, N., CAÑABATE, A., & SABATE, F. The Impact of Corporate Social Responsibility Communications on Firms' Social Capital Development. A Literature Review. STRATEGICA, 521. 
+- Social Capital definition
 
 ## Contact Information
 
