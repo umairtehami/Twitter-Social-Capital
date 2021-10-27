@@ -14,7 +14,7 @@ The relationships between nodes obtained are the cross-followings between primar
 
 Both the nodes and the relationships between them are determined for the time of execution since it is not possible to obtain from the twitter API the status of followers and followees at a point in time in the past.
 
-The weight or strength of the relationships is calculated based on the number of interactions -¬mentions, retweets and/or comments- between nodes. The software requests the period of time for which these relationships are to be obtained.
+The weight or strength of the relationships is calculated based on the number of interactions (mentions, retweets and/or comments) between nodes. The software requests the period of time for which these relationships are to be obtained.
 
 ![](images/image_followers.png)
 
