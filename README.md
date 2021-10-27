@@ -54,9 +54,9 @@ To run this project, install it locally using the auto contened installer. It ca
 ## Authors
 
 - [Umair Tehami](https://www.researchgate.net/profile/Umair-Tehami) – Developer
-- Antonio Cañabate Carmona - Senior Researcher
-- Natalia Sánchez-Arrieta - Researcher
-- Ferran Sabate Garriga - Researcher
+- [Antonio Cañabate Carmona](https://www.researchgate.net/profile/Antonio-Canabate-Carmona) - Senior Researcher
+- [Natalia Sánchez-Arrieta](https://www.researchgate.net/profile/Natalia-Sanchez-Arrieta) - Researcher
+- [Ferran Sabate Garriga](https://www.researchgate.net/profile/Ferran-Sabate) - Researcher
 
 ## References
 
