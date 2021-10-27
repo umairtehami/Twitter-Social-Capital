@@ -32,19 +32,12 @@ The weighting or strength of the relationship corresponds to the number of menti
 
 Additionally, the software allows extracting all tweets issued by the list members during the selected period of time. This extraction will allow the analysis of these tweets for different purposes.
 
-
-
-# Social Capital
-
-# Research Gate Article
-
 ## Technologies
+
 Project is created with:
-* Software version: 7.0
+* Software version: 1.0
 * Programming Lenguaje: Python
 * Graphic Library: PyQT5
-
-## Video
 
 ## Extractions Supported
 
@@ -55,13 +48,23 @@ Project is created with:
 - Tweets
 
 ## Setup
+
 To run this project, install it locally using the auto contened installer.
 
 ## Authors
-- Umair Tehami - Developer
-- Antonio Cañabate Carmona - Researcher
-- Natalia Sanchez - Researcher
-- Ferran Sabate - Researcher
+
+•	Umair Tehami – Developer (linkedin)
+•	Antonio Cañabate Carmona - Senior Researcher
+•	Natalia Sánchez-Arrieta - Researcher
+•	Ferran Sabate Garriga - Researcher
+
+## References
+
+Companies social capital en Twitter. Bachelor’s degree final project
+Sánchez-Arrieta, N., González, R. A., Cañabate, A., & Sabate, F. (2021). Social Capital on Social Networking Sites: A Social Network Perspective. Sustainability, 13(9), 5147. 
+SANCHEZ-ARRIETA, N., CAÑABATE, A., & SABATE, F. The Impact of Corporate Social Responsibility Communications on Firms' Social Capital Development. A Literature Review. STRATEGICA, 521. 
+Social Capital definition
 
 ## Contact Information
 
+Umair Tehami - umair.tehami@gmail.com
