@@ -49,7 +49,7 @@ Project is created with:
 
 ## Setup
 
-To run this project, install it locally using the auto contened installer.
+To run this project, install it locally using the auto contened installer. It can be find in release section.
 
 ## Authors
 
