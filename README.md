@@ -41,9 +41,9 @@ Project is created with:
 
 ## Extractions Supported
 
-- Followers and followees simple
+- Followers and followees
 - Followers and followees weighted
-- Mentions simple
+- Mentions
 - Mentions weighted
 - Tweets
 
