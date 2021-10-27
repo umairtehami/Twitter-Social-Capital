@@ -1,4 +1,4 @@
-# Abstract
+# Social Capital Twitter Data Extractor
 Social Capital Twitter Data eXtractor (SCTDX) has been developed as part of a research project of the Universitat Politècnica de Catalunya and uses the twitter API to extract the necessary information to analyse the Social Capital of a group of twitter accounts or users.
 Social Capital consists of a series of resources that individuals or groups can mobilise from the structures of the social networks to which they belong. As an example, let us imagine a group of individuals or organisations who wish to promote support for a social cause and who have a large and dense volume of social relationships through which they can mobilise and obtain the support of the members of that network. In some sense, Social Capital is also a measure of the influence that can be exerted in a social network, precisely in order to mobilise the resources available to the group and its members.
 
@@ -15,6 +15,18 @@ The relationships between nodes obtained are the cross-followings between primar
 Both the nodes and the relationships between them are determined for the time of execution since it is not possible to obtain from the twitter API the status of followers and followees at a point in time in the past.
 
 The weight or strength of the relationships is calculated based on the number of interactions -¬mentions, retweets and/or comments- between nodes. The software requests the period of time for which these relationships are to be obtained.
+
+**Mentions network:**
+
+This network is composed of the members of the list (primary nodes) and all those twitter users who are mentioned by the primary nodes or who mention them (secondary nodes). In order to obtain this network it is necessary to provide the period of time to be analysed.
+
+The relationships between the nodes are established through the mentions, there is a relationship between each pair of nodes that mention each other, reflecting the directionality, i.e. who mentions whom.
+
+The weighting or strength of the relationship corresponds to the number of mentions in the time period analyzed.
+
+**Extraction of twits:**
+
+Additionally, the software allows extracting all tweets issued by the list members during the selected period of time. This extraction will allow the analysis of these tweets for different purposes.
 
 
 
