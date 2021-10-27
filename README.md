@@ -28,7 +28,7 @@ The weighting or strength of the relationship corresponds to the number of menti
 
 ![](images/image_mentions.png)
 
-**Extraction of twits:**
+**Extraction of tweets:**
 
 Additionally, the software allows extracting all tweets issued by the list members during the selected period of time. This extraction will allow the analysis of these tweets for different purposes.
 
