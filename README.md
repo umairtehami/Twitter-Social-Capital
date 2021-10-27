@@ -53,7 +53,7 @@ To run this project, install it locally using the auto contened installer.
 
 ## Authors
 
-- Umair Tehami – Developer (linkedin)
+- Umair Tehami – Developer
 - Antonio Cañabate Carmona - Senior Researcher
 - Natalia Sánchez-Arrieta - Researcher
 - Ferran Sabate Garriga - Researcher
