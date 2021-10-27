@@ -2,7 +2,7 @@
 Social Capital Twitter Data eXtractor (SCTDX) has been developed as part of a research project of the Universitat Politècnica de Catalunya and uses the twitter API to extract the necessary information to analyse the Social Capital of a group of twitter accounts or users.
 Social Capital consists of a series of resources that individuals or groups can mobilise from the structures of the social networks to which they belong. As an example, let us imagine a group of individuals or organisations who wish to promote support for a social cause and who have a large and dense volume of social relationships through which they can mobilise and obtain the support of the members of that network. In some sense, Social Capital is also a measure of the influence that can be exerted in a social network, precisely in order to mobilise the resources available to the group and its members.
 
-Today, social media, and in particular twitter, are the ideal technological service for implementing and developing large networks of relationships. Given the open nature of twitter, it is possible to obtain information about the relationships of a network through its API. The software uses the xxx API (link) and requires an authentication of type xxx or type xxx to be provided for access to the it (link to twitter page on accesses or to request them).
+Today, social media, and in particular twitter, are the ideal technological service for implementing and developing large networks of relationships. Given the open nature of twitter, it is possible to obtain information about the relationships of a network through its API. The software uses the Academic and the Standard [API](https://developer.twitter.com/en/docs/twitter-api) and requires an [authentication](https://developer.twitter.com/en/docs/authentication/overview) of type OAuth1 or type OAuth2 to be provided for access to the it.
 
 The software has to be provided with the id of a twitter list (which is the number where the url of the list ends) in which the main members or primary nodes of the network to be analysed are included. For example, these members could be the accounts belonging to companies or organisations and individuals relevant to a certain economic sector in a given territory or to an association with a common purpose. The social network of this cluster would be made up of its members -primary nodes-, but also its followers and followees on twitter and those users with whom they interact through mentions, retweets or comments, which we will call secondary nodes. Thus, SCTDX allows the necessary information to be extracted to CSV files for later analysis with network analysis software such as, for example, Ghephi. It is possible to extract the information for the following types of relationship networks:
 
@@ -38,6 +38,7 @@ Project is created with:
 * Software version: 1.0
 * Programming Lenguaje: Python
 * Graphic Library: PyQT5
+* Twitter Library: Tweepy
 
 ## Extractions Supported
 
